@@ -548,8 +548,8 @@ namespace CTRPluginFramework
     }
   }
 
-  std::vector<std::vector<std::string>> MenuEntryNameList = {{"Pipes","pipes", "ぱいぷす", "パイプス"}, {"YokaiEditor","yokaieditor", "ようかいえでぃたー", "ヨウカイエディター"}, {"Cube","cube", "きゅーぶ", "キューブ"},{"Bad Apple!!","bad apple!!","ばっどあっぷる","バッドアップル"}};
-  FuncPointer MenuEntryFuncList[] = {Pipes, YokaiEditor, Cube,BadApple};
+  std::vector<std::vector<std::string>> MenuEntryNameList = {{"pipes", "ぱいぷす", "パイプス", "Pipes"}, {"yokaieditor", "ようかいえでぃたー", "ヨウカイエディター", "YokaiEditor"}, {"cube", "きゅーぶ", "キューブ", "Cube"}, {"bad apple!!", "ばっどあっぷる！！", "バッドアップル！！", "Bad Apple!!"}};
+  FuncPointer MenuEntryFuncList[] = {Pipes, YokaiEditor, Cube};
   void Search(MenuEntry *entry)
   {
     std::string input;
@@ -573,7 +573,7 @@ namespace CTRPluginFramework
     std::vector<std::string> options;
     for (int i = 0; i < entryNums.size(); i++)
     {
-      options.push_back(MenuEntryNameList[entryNums[i]][0]);
+      options.push_back(MenuEntryNameList[entryNums[i]][3]);
     }
     Keyboard key("which do you want:", options);
     int choice = key.Open();
@@ -582,7 +582,7 @@ namespace CTRPluginFramework
     case -1:
       break;
     default:
-      entry->Name() = MenuEntryNameList[entryNums[choice]][0] + "(search)";
+      entry->Name() = MenuEntryNameList[entryNums[choice]][3] + "(search)";
       entry->SetGameFunc(MenuEntryFuncList[entryNums[choice]]);
       break;
     }
@@ -1007,46 +1007,45 @@ namespace CTRPluginFramework
     {
       AA -= 0.05;
     }
-    if (Controller::IsKeyDown(Key::CStickLeft))
+    if (Controller::IsKeyDown(Key::CStickUp))
     {
       CC -= 0.05;
     }
-    if (Controller::IsKeyDown(Key::CStickRight))
+    if (Controller::IsKeyDown(Key::CStickDown))
     {
       CC += 0.05;
     }
-    if (Controller::IsKeyDown(Key::CStickUp))
-    {
-      distanceFromCam += 5;
-    }
-    if (Controller::IsKeyDown(Key::CStickDown))
+    if (Controller::IsKeyDown(Key::CStickLeft))
     {
       distanceFromCam -= 5;
+    }
+    if (Controller::IsKeyDown(Key::CStickRight))
+    {
+      distanceFromCam += 5;
     }
   }
 
   int frame_num = 0;
   void BadApple(MenuEntry *entry)
   {
-    // std::string str_frame = getFrame(frame_num);
-    // const Screen &screen = OSD::GetTopScreen();
-    // for (int j = 0; j < 22; j++)
-    // {
-    //   for (int i = 0; i < 60; i++)
-    //   {
-    //     if (str_frame.substr(i + j * 60, 1) == "0")
-    //       screen.DrawRect(20 + i * 6, 10 + j * 10, 6, 10, Color::White);
-    //     else
-    //       screen.DrawRect(20 + i * 6, 10 + j * 10, 6, 10, Color::Black);
-    //   }
-    // }
+    std::string str_frame = getFrame(frame_num);
+    const Screen &screen = OSD::GetTopScreen();
+    for (int j = 0; j < 22; j++)
+    {
+      for (int i = 0; i < 60; i++)
+      {
+        if (str_frame.substr(i + j * 60, 1) == "0")
+          screen.DrawRect(20 + i * 6, 10 + j * 10, 6, 10, Color::White);
+        else
+          screen.DrawRect(20 + i * 6, 10 + j * 10, 6, 10, Color::Black);
+      }
+    }
+    if (slow % 5 == 0)
+    {
+      frame_num++;
+    }
+    slow++;
 
-    // if (slow % 5 == 0)
-    // {
-    //   frame_num++;
-    // }
-    // slow++;
-
-    // screen.DrawSysfont(Utils::ToString(frame_num, 0), 0, 0);
+    screen.DrawSysfont(Utils::ToString(frame_num, 0), 0, 0);
   }
 }
