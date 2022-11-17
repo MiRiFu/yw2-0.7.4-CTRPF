@@ -1026,9 +1026,26 @@ namespace CTRPluginFramework
   }
 
   int frame_num = 0;
+  std::string str_frame;
   void BadApple(MenuEntry *entry)
   {
-    std::string str_frame = getFrame(frame_num);
+    // std::string str_frame = getFrame(frame_num);
+    if (slow % 0x10 == 0)
+    {
+      str_frame = "";
+      frame_num++;
+      File file;
+      File::Open(file, "test.bin");
+      file.Seek(frame_num * 1320);
+      for (int i = 0; i < 1320; i++)
+      {
+        u8 buf;
+        file.Read((void *)&buf, sizeof(u8));
+        str_frame += Utils::ToString(buf, 0);
+      }
+      file.Close();
+    }
+    slow++;
     const Screen &screen = OSD::GetTopScreen();
     for (int j = 0; j < 22; j++)
     {
@@ -1040,11 +1057,6 @@ namespace CTRPluginFramework
           screen.DrawRect(20 + i * 6, 10 + j * 10, 6, 10, Color::Black);
       }
     }
-    if (slow % 5 == 0)
-    {
-      frame_num++;
-    }
-    slow++;
 
     screen.DrawSysfont(Utils::ToString(frame_num, 0), 0, 0);
   }
