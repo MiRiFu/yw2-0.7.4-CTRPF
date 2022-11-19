@@ -2,7 +2,8 @@
 #include "osd_plus.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/System/ProcessImpl.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
-#include <bitset>
+#include "Helpers/Convert.hpp"
+#include "Helpers/ProcessPlus.cpp"
 
 namespace CTRPluginFramework
 {
@@ -68,7 +69,7 @@ namespace CTRPluginFramework
         sjis.pop_back();
         sjis.pop_back();
         u16 buff_utf16;
-        buff_utf16 = utf16ToSjis(u16array2[i]);
+        buff_utf16 = Convert::utf16ToSjis(u16array2[i]);
         sjis.push_back(buff_utf16 / 0x100);
         sjis.push_back(buff_utf16 & 0xFF);
       }
@@ -78,7 +79,7 @@ namespace CTRPluginFramework
         sjis.pop_back();
         sjis.pop_back();
         u16 buff_utf16;
-        buff_utf16 = utf16ToSjis(u16array1[i]);
+        buff_utf16 = Convert::utf16ToSjis(u16array1[i]);
         sjis.push_back(buff_utf16 / 0x100);
         sjis.push_back(buff_utf16 & 0xFF);
       }
@@ -133,7 +134,7 @@ namespace CTRPluginFramework
         sjis.pop_back();
         sjis.pop_back();
         u16 buff_utf16;
-        buff_utf16 = utf16ToSjis(u16array2[i]);
+        buff_utf16 = Convert::utf16ToSjis(u16array2[i]);
         sjis.push_back(buff_utf16 / 0x100);
         sjis.push_back(buff_utf16 & 0xFF);
         break;
@@ -144,7 +145,7 @@ namespace CTRPluginFramework
         sjis.pop_back();
         sjis.pop_back();
         u16 buff_utf16;
-        buff_utf16 = utf16ToSjis(u16array1[i]);
+        buff_utf16 = Convert::utf16ToSjis(u16array1[i]);
         sjis.push_back(buff_utf16 / 0x100);
         sjis.push_back(buff_utf16 & 0xFF);
         break;
@@ -177,7 +178,7 @@ namespace CTRPluginFramework
         {
           InputChrs.push_back(U16_ChrArray[wy * 10 + wx]);
           u16 buff_utf16;
-          buff_utf16 = utf16ToSjis(U16_ChrArray[wy * 10 + wx]);
+          buff_utf16 = Convert::utf16ToSjis(U16_ChrArray[wy * 10 + wx]);
           sjis.push_back(buff_utf16 / 0x100);
           sjis.push_back(buff_utf16 & 0xFF);
         }
@@ -298,7 +299,7 @@ namespace CTRPluginFramework
           u16 buff;
           Process::WriteString((u32)&buff, input.substr(i, 1), StringFormat::Utf16);
           InputChrs.push_back(buff);
-          buff = strToSjis(input.substr(i, 1));
+          buff = Convert::strToSjis(input.substr(i, 1));
           sjis.push_back(buff & 0xFF);
         }
       }
@@ -639,14 +640,14 @@ namespace CTRPluginFramework
           }
           else if ((nickname[i] < 0x80) || (nickname[i] > 0xA0))
           {
-            buff = sjisToUtf16(nickname[i]);
+            buff = Convert::sjisToUtf16(nickname[i]);
             Utils::ConvertUTF16ToUTF8(buff_str, &buff);
             nickname_str += buff_str.substr(0, 1);
             i++;
           }
           else
           {
-            buff = sjisToUtf16(nickname[i] * 0x100 + nickname[i + 1]);
+            buff = Convert::sjisToUtf16(nickname[i] * 0x100 + nickname[i + 1]);
             Utils::ConvertUTF16ToUTF8(buff_str, &buff);
             nickname_str += buff_str.substr(0, 3);
             i += 2;

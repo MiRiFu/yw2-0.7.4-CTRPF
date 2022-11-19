@@ -17,10 +17,6 @@ namespace CTRPluginFramework
     void Cube(MenuEntry *entry);
     void BadApple(MenuEntry *entry);
 
-    u16 sjisToUtf16(u16 sjis);
-    u16 utf16ToSjis(u16 utf16);
-    u16 strToSjis(std::string moji);
-
     std::vector<u64> getFrame(int &frame);
 }
 #endif
