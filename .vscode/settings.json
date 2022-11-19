@@ -41,6 +41,10 @@
     "typeinfo": "cpp",
     "utility": "cpp",
     "ctime": "cpp",
-    "list": "cpp"
+    "list": "cpp",
+    "fstream": "cpp",
+    "iostream": "cpp",
+    "istream": "cpp",
+    "bitset": "cpp"
   }
 }

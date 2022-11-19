@@ -21,6 +21,6 @@ namespace CTRPluginFramework
     u16 utf16ToSjis(u16 utf16);
     u16 strToSjis(std::string moji);
 
-    std::string getFrame(int &frame);
+    std::vector<u64> getFrame(int &frame);
 }
 #endif

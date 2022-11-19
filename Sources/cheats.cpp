@@ -2,6 +2,7 @@
 #include "osd_plus.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/System/ProcessImpl.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
+#include <bitset>
 
 namespace CTRPluginFramework
 {
@@ -1029,35 +1030,28 @@ namespace CTRPluginFramework
   std::string str_frame;
   void BadApple(MenuEntry *entry)
   {
-    // std::string str_frame = getFrame(frame_num);
-    if (slow % 0x10 == 0)
-    {
-      str_frame = "";
-      frame_num++;
-      File file;
-      File::Open(file, "test.bin");
-      file.Seek(frame_num * 1320);
-      for (int i = 0; i < 1320; i++)
-      {
-        u8 buf;
-        file.Read((void *)&buf, sizeof(u8));
-        str_frame += Utils::ToString(buf, 0);
-      }
-      file.Close();
-    }
+    std::vector<u64> str_frame = {0xfffff, 0x1fffff, 0x3fffff, 0x7fffff, 0x7fffff, 0x7fffff, 0xffffff, 0x7fffff, 0x1fffff, 0x1fffff, 0x7fffff, 0x7ffff, 0x1ffff, 0x7fff, 0x1fff, 0xfff, 0xfff, 0x7ff, 0x7ff, 0x3ff, 0x7f, 0x1f};
+    // std::vector<u64> str_frame = getFrame(frame_num);
+
     slow++;
     const Screen &screen = OSD::GetTopScreen();
-    for (int j = 0; j < 22; j++)
+    for (int i = 0; i < str_frame.size(); i++)
     {
-      for (int i = 0; i < 60; i++)
+      u8 index = 0;
+      for (int j = 1; j < 0x1000000000000000; j *= 2)
       {
-        if (str_frame.substr(i + j * 60, 1) == "0")
-          screen.DrawRect(20 + i * 6, 10 + j * 10, 6, 10, Color::White);
+        if (str_frame[i] & j)
+          screen.DrawRect(360 - index * 6, 10 + i * 10, 6, 10, Color::White);
         else
-          screen.DrawRect(20 + i * 6, 10 + j * 10, 6, 10, Color::Black);
+          screen.DrawRect(360 - index * 6, 20 + i * 10, 6, 10, Color::Black);
+        index++;
       }
     }
 
     screen.DrawSysfont(Utils::ToString(frame_num, 0), 0, 0);
+    if (slow % 0x10 == 0)
+    {
+      frame_num++;
+    }
   }
 }
