@@ -1,4 +1,4 @@
-#include "Helpers/Convert.hpp"
+#include "Helpers.hpp"
 
 namespace CTRPluginFramework
 {
@@ -10,7 +10,6 @@ namespace CTRPluginFramework
 
   u16 Convert::sjisToUtf16(u16 sjis)
   {
-
     SJIS_UTF16 sjis_utf16List[] =
         {
             {0x20, 0x0020},

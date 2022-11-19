@@ -2,8 +2,6 @@
 #include "osd_plus.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/System/ProcessImpl.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
-#include "Helpers/Convert.hpp"
-#include "Helpers/ProcessPlus.cpp"
 
 namespace CTRPluginFramework
 {
