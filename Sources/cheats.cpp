@@ -229,7 +229,21 @@ namespace CTRPluginFramework
         j++;
         width = OSD::GetTextWidth(true, InputStr.substr(i, InputStr.length() - i));
       }
-      scr.DrawRect(58 + width - selectedIndex * 13, 37, selectedIndex * 13, 17, Color::Blue);
+      if (selectedIndex != 0)
+      {
+        std::vector<u16> lastN(InputChrs.end() - selectedIndex, InputChrs.end());
+        std::string buff_str;
+        for (u16 i : lastN)
+        {
+          std::string buff_str1;
+          Utils::ConvertUTF16ToUTF8(buff_str1, &i);
+          if (i > 0x1000)
+            buff_str += buff_str1.substr(0, 3);
+          else
+            buff_str += buff_str1.substr(0, 1);
+        }
+        scr.DrawRect(58 + width - OSD::GetTextWidth(true, buff_str), 37, OSD::GetTextWidth(true, buff_str), 17, Color::Blue);
+      }
       scr.DrawSysfont(InputStr.substr(i, InputStr.length() - i), 58, 38);
     }
 
@@ -283,7 +297,7 @@ namespace CTRPluginFramework
     {
       scr.DrawRect(32, 35, 17, 17, Color::White);
       std::vector<u16> lastN(InputChrs.end() - selectedIndex - 1, InputChrs.end());
-      if (lastN[0] != 0)
+      if (lastN[0] > 0x1000)
       {
         selectedIndex++;
       }
@@ -302,7 +316,7 @@ namespace CTRPluginFramework
       std::string kanji = Convert::hiraganaToKanji(InputStr.substr(InputStr.length() - selectedIndex * 3, selectedIndex * 3));
       if (!kanji.empty())
       {
-        for (int i = 0; i < selectedIndex; i++)
+        for (int j = 0; j < selectedIndex; j++)
         {
           InputChrs.pop_back();
           sjis.pop_back();
@@ -310,17 +324,40 @@ namespace CTRPluginFramework
         }
         if (InputChrs.size() < 31)
         {
-          u8 k = 0;
-          for (int j = 0; j < kanji.length() / 3; j++)
+          u8 k = 0, i = 0;
+          u16 buff_utf16[100] = {0};
+          Process::WriteString((u32)buff_utf16, kanji, StringFormat::Utf16);
+          i = 0;
+          selectedIndex = 0;
+          while (1)
           {
-            u16 buff_utf16 = Convert::strToSjis(kanji.substr(k, 3));
-            InputChrs.push_back(Convert::sjisToUtf16(buff_utf16));
-            sjis.push_back(buff_utf16 / 0x100);
-            sjis.push_back(buff_utf16 & 0xFF);
-            k += 3;
+            if (buff_utf16[i] == 0)
+              break;
+            if (buff_utf16[i] < 0x1000)
+              selectedIndex = 0;
+            else
+              selectedIndex++;
+            i++;
+          }
+          for (int j = 0; j < i; j++)
+          {
+            u16 buff_sjis;
+            if (buff_utf16[j] > 0x1000)
+            {
+              buff_sjis = Convert::strToSjis(kanji.substr(k, 3));
+              k += 3;
+              sjis.push_back(buff_sjis / 0x100);
+              sjis.push_back(buff_sjis & 0xFF);
+            }
+            else
+            {
+              buff_sjis = Convert::strToSjis(kanji.substr(k, 1));
+              sjis.push_back(buff_sjis & 0xFF);
+              k++;
+            }
+            InputChrs.push_back(buff_utf16[j]);
           }
         }
-        selectedIndex = kanji.length() / 3;
       }
     }
 
