@@ -9,6 +9,8 @@ namespace CTRPluginFramework
   bool KatakanaMode = 1;
   bool KeyboardOpened;
 
+  u8 selectedIndex;
+
   std::vector<u16> InputChrs;
   std::string InputStr;
 
@@ -166,6 +168,7 @@ namespace CTRPluginFramework
       UIntVector pos = Touch::GetPosition();
       if (pos.x >= 23 && pos.y >= 69 && pos.x <= 262 && pos.y <= 178)
       {
+        selectedIndex = 0;
         int wx = pos.x - 23;
         int wy = pos.y - 69;
         wx /= 24;
@@ -209,14 +212,24 @@ namespace CTRPluginFramework
       }
       Process::ReadString((u32)str, InputStr, InputChrs.size() * 2, StringFormat::Utf16);
       u8 i = 0;
+      u8 j = 0;
       u16 width = OSD::GetTextWidth(true, InputStr);
       while (1)
       {
         if (width <= 208)
           break;
-        i += 3;
+        if (InputChrs[j] < 0x1000)
+        {
+          i++;
+        }
+        else
+        {
+          i += 3;
+        }
+        j++;
         width = OSD::GetTextWidth(true, InputStr.substr(i, InputStr.length() - i));
       }
+      scr.DrawRect(58 + width - selectedIndex * 13, 37, selectedIndex * 13, 17, Color::Blue);
       scr.DrawSysfont(InputStr.substr(i, InputStr.length() - i), 58, 38);
     }
 
@@ -226,6 +239,7 @@ namespace CTRPluginFramework
     {
       if (Controller::IsKeyPressed(Touchpad) && TouchRect(268, 72 + i * 22, 24, 16))
       {
+        selectedIndex = 0;
         switch (i)
         {
         case 0:
@@ -262,16 +276,61 @@ namespace CTRPluginFramework
       scr.DrawSysfont(opt[i], 268, 72 + i * 22);
     }
 
+    //選択
+    scr.DrawSysfont("<", 35, 35);
+    scr.DrawSysfont(">", 277, 35);
+    if (Controller::IsKeyPressed(Touchpad) && TouchRect(32, 32, 24, 22))
+    {
+      scr.DrawRect(32, 35, 17, 17, Color::White);
+      std::vector<u16> lastN(InputChrs.end() - selectedIndex - 1, InputChrs.end());
+      if (lastN[0] != 0)
+      {
+        selectedIndex++;
+      }
+    }
+    if (Controller::IsKeyPressed(Touchpad) && TouchRect(274, 32, 24, 22))
+    {
+      scr.DrawRect(274, 35, 17, 17, Color::White);
+      if (selectedIndex != 0)
+      {
+        selectedIndex--;
+      }
+    }
+
+    if (Controller::IsKeyPressed(Key::Y) && selectedIndex != 0)
+    {
+      std::string kanji = Convert::hiraganaToKanji(InputStr.substr(InputStr.length() - selectedIndex * 3, selectedIndex * 3));
+      if (!kanji.empty())
+      {
+        for (int i = 0; i < selectedIndex; i++)
+        {
+          InputChrs.pop_back();
+          sjis.pop_back();
+          sjis.pop_back();
+        }
+        if (InputChrs.size() < 31)
+        {
+          u8 k = 0;
+          for (int j = 0; j < kanji.length() / 3; j++)
+          {
+            u16 buff_utf16 = Convert::strToSjis(kanji.substr(k, 3));
+            InputChrs.push_back(Convert::sjisToUtf16(buff_utf16));
+            sjis.push_back(buff_utf16 / 0x100);
+            sjis.push_back(buff_utf16 & 0xFF);
+            k += 3;
+          }
+        }
+        selectedIndex = kanji.length() / 3;
+      }
+    }
+
     // とじる
     scr.DrawRect(28, 191, 68, 22, Color::Gray);
     scr.DrawRect(28, 191, 68, 22, Color::White, false);
     scr.DrawSysfont("とじる", 42, 194);
     if (Controller::IsKeyPressed(B) || TouchRect(28, 191, 68, 22))
     {
-      for (int i = 0; i < sjis.size(); i++)
-      {
-        sjis.pop_back();
-      }
+      sjis.clear();
       KeyboardOpened = false;
     }
 
