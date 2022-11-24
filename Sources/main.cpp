@@ -255,6 +255,7 @@ namespace CTRPluginFramework
         menu->SynchronizeWithFrame(true);
         menu->ShowWelcomeMessage(false);
 
+
         // Init our menu entries & folders
         InitMenu(*menu);
 

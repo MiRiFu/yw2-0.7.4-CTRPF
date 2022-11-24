@@ -1,4 +1,7 @@
-#include "cheats.hpp"
+#ifndef OSD_PLUS_HPP
+#define OSD_PLUS_HPP
+
+#include "CTRPluginFramework.hpp"
 #include <math.h>
 /*****************************************************/
 /*                                                   */
@@ -44,7 +47,7 @@ namespace CTRPluginFramework
 		}
 	}
 
-	void DrawPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground, const Color &background, const Color &border)
+	void DrawPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground, const Color &background, const Color &border, int fontAlign)
 	{
 		int bgWidth = OSD::GetTextWidth(false, str);
 		int height = 10 + padding * 2;
@@ -61,15 +64,63 @@ namespace CTRPluginFramework
 				10 + padding * 2,
 				background);
 
+		u32 strX = 0;
+		u32 strY = 0;
+		if (fontAlign == 0)
+		{
+			strX = posX + borderWidth;
+			strY = posY + borderWidth;
+		}
+		else if (fontAlign == 1)
+		{
+			strX = posX + borderWidth + padding;
+			strY = posY + borderWidth;
+		}
+		else if (fontAlign == 2)
+		{
+			strX = posX + borderWidth + (padding * 2);
+			strY = posY + borderWidth;
+		}
+		else if (fontAlign == 3)
+		{
+			strX = posX + borderWidth + (padding * 2);
+			strY = posY + borderWidth + padding;
+		}
+		else if (fontAlign == 4)
+		{
+			strX = posX + borderWidth + (padding * 2);
+			strY = posY + borderWidth + padding * 2;
+		}
+		else if (fontAlign == 5)
+		{
+			strX = posX + borderWidth + padding;
+			strY = posY + borderWidth + padding * 2;
+		}
+		else if (fontAlign == 6)
+		{
+			strX = posX + borderWidth;
+			strY = posY + borderWidth + padding * 2;
+		}
+		else if (fontAlign == 7)
+		{
+			strX = posX + borderWidth;
+			strY = posY + borderWidth + padding;
+		}
+		else if (fontAlign == 8)
+		{
+			strX = posX + borderWidth + padding;
+			strY = posY + borderWidth + padding;
+		}
+
 		scr.Draw(
 				str,
-				posX + borderWidth + padding,
-				posY + borderWidth + padding,
+				strX,
+				strY,
 				foreground,
 				background);
 	}
 
-	void DrawSysfontPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground = Color::White, const Color &background = Color::Black, const Color &border = Color::White, bool fillBackground = true, bool rightAligned = false)
+	void DrawSysfontPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground, const Color &background, const Color &border, bool fillBackground, bool rightAligned = false, int fontAlign = 0)
 	{
 		int bgWidth = OSD::GetTextWidth(true, str);
 		int height = 16 + padding * 2;
@@ -100,6 +151,7 @@ namespace CTRPluginFramework
 			scr.DrawRect(posX + borderWidth + padding + bgWidth + padding, posY + borderWidth, borderWidth, height, border);
 			scr.DrawRect(posX, posY + borderWidth + height, bgWidth + (borderWidth * 2) + (padding)*2, borderWidth, border);
 			scr.DrawRect(posX, posY + borderWidth, borderWidth, height, border);
+
 			if (fillBackground)
 			{
 				scr.DrawRect(
@@ -109,10 +161,59 @@ namespace CTRPluginFramework
 						16 + padding * 2,
 						background);
 			}
+
+			u32 strX = 0;
+			u32 strY = 0;
+			if (fontAlign == 0)
+			{
+				strX = posX + borderWidth;
+				strY = posY + borderWidth;
+			}
+			else if (fontAlign == 1)
+			{
+				strX = posX + borderWidth + padding;
+				strY = posY + borderWidth;
+			}
+			else if (fontAlign == 2)
+			{
+				strX = posX + borderWidth + (padding * 2);
+				strY = posY + borderWidth;
+			}
+			else if (fontAlign == 3)
+			{
+				strX = posX + borderWidth + (padding * 2);
+				strY = posY + borderWidth + padding;
+			}
+			else if (fontAlign == 4)
+			{
+				strX = posX + borderWidth + (padding * 2);
+				strY = posY + borderWidth + padding * 2;
+			}
+			else if (fontAlign == 5)
+			{
+				strX = posX + borderWidth + padding;
+				strY = posY + borderWidth + padding * 2;
+			}
+			else if (fontAlign == 6)
+			{
+				strX = posX + borderWidth;
+				strY = posY + borderWidth + padding * 2;
+			}
+			else if (fontAlign == 7)
+			{
+				strX = posX + borderWidth;
+				strY = posY + borderWidth + padding;
+			}
+			else if (fontAlign == 8)
+			{
+				strX = posX + borderWidth + padding;
+				strY = posY + borderWidth + padding;
+			}
+
 			scr.DrawSysfont(
 					str,
-					posX + borderWidth + padding,
-					posY + borderWidth + padding,
+					strX,
+					strY,
 					foreground);
 		}
 	}
@@ -122,7 +223,7 @@ namespace CTRPluginFramework
 		return degree * (M_PI / 180);
 	}
 
-	void DrawCycle(const Screen &scr, u32 x, u32 y, u32 radiusStart, u32 radiusEnd, int start, int end, const Color &color)
+	void DrawCircle(const Screen &scr, u32 x, u32 y, u32 radiusStart, u32 radiusEnd, int start, int end, const Color &color)
 	{
 		u32 rectLength = (radiusEnd * 2) / 1.41421356237;
 		u32 miniRadius = rectLength / 2;
@@ -149,3 +250,4 @@ namespace CTRPluginFramework
 	}
 	/* End of Utility functions for OSD */
 }
+#endif

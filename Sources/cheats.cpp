@@ -45,6 +45,28 @@ namespace CTRPluginFramework
     return false;
   }
 
+  bool TouchCircle(u32 x, u32 y, u8 size)
+  {
+    u32 rectLength = (size * 2) / 1.41421356237;
+    u32 miniRadius = rectLength / 2;
+
+    u32 rectX = x - miniRadius;
+    u32 rectY = y - miniRadius;
+    if (TouchRect(rectX, rectY, rectLength, rectLength))
+      return true;
+
+    UIntVector pos = Touch::GetPosition();
+    for (int r = miniRadius; r < size; r++)
+    {
+      for (int angle = 0; angle < 360; angle++)
+      {
+        if (pos.x == x + cos(DegreeToRadian(angle)) * r && pos.y == y + sin(DegreeToRadian(angle)) * r)
+          return true;
+      }
+    }
+    return false;
+  }
+
   void Komoji(u16 &moji, std::vector<u8> &sjis)
   {
     // ひらがな・カタカナじゃなければ帰る
@@ -229,21 +251,7 @@ namespace CTRPluginFramework
         j++;
         width = OSD::GetTextWidth(true, InputStr.substr(i, InputStr.length() - i));
       }
-      if (selectedIndex != 0)
-      {
-        std::vector<u16> lastN(InputChrs.end() - selectedIndex, InputChrs.end());
-        std::string buff_str;
-        for (u16 i : lastN)
-        {
-          std::string buff_str1;
-          Utils::ConvertUTF16ToUTF8(buff_str1, &i);
-          if (i > 0x1000)
-            buff_str += buff_str1.substr(0, 3);
-          else
-            buff_str += buff_str1.substr(0, 1);
-        }
-        scr.DrawRect(58 + width - OSD::GetTextWidth(true, buff_str), 37, OSD::GetTextWidth(true, buff_str), 17, Color::Blue);
-      }
+      scr.DrawRect(58 + width - selectedIndex * 13, 37, selectedIndex * 13, 17, Color::Blue);
       scr.DrawSysfont(InputStr.substr(i, InputStr.length() - i), 58, 38);
     }
 
@@ -395,6 +403,7 @@ namespace CTRPluginFramework
           InputChrs.push_back(buff);
           buff = Convert::strToSjis(input.substr(i, 1));
           sjis.push_back(buff & 0xFF);
+          selectedIndex = 0;
         }
       }
       KatakanaMode = KatakanaMode ? false : true;
@@ -785,6 +794,10 @@ namespace CTRPluginFramework
         DrawSysfontPlus(btmScr, "すばやさ: ", 36, 195, 0, 0, Color::White, Color::Black, Color::Red, true);
         btmScr.DrawRect(120, 195, 50, 16, Color::White, true);
         DrawSysfontPlus(btmScr, Utils::Format("%d", speed), 170, 195, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
+        DrawCircle(btmScr, 210, 190, 0, 25, 0, 360, Color::Lime);
+        DrawCircle(btmScr, 265, 190, 0, 25, 0, 360, Color::Orange);
+        DrawPlus(btmScr, "Save", 197, 187, 0, 0, Color::White, Color::Lime, Color::Red, 8);
+        DrawPlus(btmScr, "Restore", 242, 187, 0, 0, Color::White, Color::Orange, Color::Red, 8);
 
         isOpened = true;
         afterKeyboard = false;
@@ -792,14 +805,14 @@ namespace CTRPluginFramework
       }
     }
     auto position = Touch::GetPosition();
-    if ((position.x != 0) && isOpened)
+    if (Controller::IsKeyPressed(Touchpad) && isOpened)
     {
-      if ((30 < position.y) && (45 > position.y) && (275 < position.x) && (290 > position.x))
+      if (TouchRect(275, 30, 15, 15))
       {
         Process::Play();
         isOpened = false;
       }
-      else if ((50 < position.y) && (70 > position.y) && (130 < position.x) && (280 > position.x))
+      else if (TouchRect(130, 48, 150, 19))
       {
         Keyboard select("select keyboard:", {"HEX", "キーボード"});
 
@@ -849,102 +862,270 @@ namespace CTRPluginFramework
         isOpened = false;
         afterKeyboard = true;
       }
-      else if ((70 < position.y) && (90 > position.y) && (130 < position.x) && (280 > position.x))
+      else if (TouchRect(130, 68, 150, 19))
       {
+        Sleep(Milliseconds(200));
         u32 buff;
         Keyboard key("妖怪ID:");
         key.IsHexadecimal(true);
         key.SetMaxLength(8);
         if (key.Open(buff) != -1)
         {
-          Process::Play();
-          isOpened = false;
           Process::Write32(0x870DBB8 + offset, buff);
-          afterKeyboard = true;
         }
+        Process::Play();
+        isOpened = false;
+        afterKeyboard = true;
       }
-      else if ((90 < position.y) && (110 > position.y) && (120 < position.x) && (170 > position.x))
+      else if (TouchRect(120, 90, 50, 20))
       {
+        Sleep(Milliseconds(200));
         u8 buff;
         Keyboard key("レベル:\n255以下にしてください");
         key.SetMaxLength(3);
         key.IsHexadecimal(false);
         if (key.Open(buff) != -1)
         {
-          Process::Play();
-          isOpened = false;
           Process::Write8(0x870DC03 + offset, buff);
-          afterKeyboard = true;
         }
+        Process::Play();
+        isOpened = false;
+        afterKeyboard = true;
       }
-      else if ((127 < position.y) && (143 > position.y) && (120 < position.x) && (170 > position.x))
+      else if (TouchRect(120, 127, 50, 15))
       {
+        Sleep(Milliseconds(200));
         u16 buff;
         Keyboard key("HP:");
         key.SetMaxLength(5);
         key.IsHexadecimal(false);
         if (key.Open(buff) != -1)
         {
-          Process::Play();
-          isOpened = false;
           Process::Write16(0x870DBEC + offset, buff);
-          afterKeyboard = true;
         }
+        Process::Play();
+        isOpened = false;
+        afterKeyboard = true;
       }
-      else if ((144 < position.y) && (160 > position.y) && (120 < position.x) && (170 > position.x))
+      else if (TouchRect(120, 144, 50, 15))
       {
+        Sleep(Milliseconds(200));
         u16 buff;
         Keyboard key("ちから:");
         key.SetMaxLength(5);
         key.IsHexadecimal(false);
         if (key.Open(buff) != -1)
         {
-          Process::Play();
-          isOpened = false;
           Process::Write16(0x870DC16 + offset, buff);
-          afterKeyboard = true;
         }
+        Process::Play();
+        isOpened = false;
+        afterKeyboard = true;
       }
-      else if ((161 < position.y) && (177 > position.y) && (120 < position.x) && (170 > position.x))
+      else if (TouchRect(120, 161, 50, 15))
       {
+        Sleep(Milliseconds(200));
         u16 buff;
         Keyboard key("ようりょく:");
         key.SetMaxLength(5);
         key.IsHexadecimal(false);
         if (key.Open(buff) != -1)
         {
-          Process::Play();
-          isOpened = false;
           Process::Write16(0x870DC18 + offset, buff);
-          afterKeyboard = true;
         }
+        Process::Play();
+        isOpened = false;
+        afterKeyboard = true;
       }
-      else if ((178 < position.y) && (194 > position.y) && (120 < position.x) && (170 > position.x))
+      else if (TouchRect(120, 178, 50, 15))
       {
+        Sleep(Milliseconds(200));
         u16 buff;
         Keyboard key("まもり:");
         key.SetMaxLength(5);
         key.IsHexadecimal(false);
         if (key.Open(buff) != -1)
         {
-          Process::Play();
-          isOpened = false;
           Process::Write16(0x870DC1A + offset, buff);
-          afterKeyboard = true;
         }
+        Process::Play();
+        isOpened = false;
+        afterKeyboard = true;
       }
-      else if ((195 < position.y) && (211 > position.y) && (120 < position.x) && (170 > position.x))
+      else if (TouchRect(120, 195, 50, 16))
       {
+        Sleep(Milliseconds(200));
         u16 buff;
         Keyboard key("すばやさ:");
         key.SetMaxLength(5);
         key.IsHexadecimal(false);
         if (key.Open(buff) != -1)
         {
-          Process::Play();
-          isOpened = false;
           Process::Write16(0x870DC1C + offset, buff);
-          afterKeyboard = true;
+        }
+        Process::Play();
+        isOpened = false;
+        afterKeyboard = true;
+      }
+      else if (TouchCircle(210, 190, 25))
+      {
+        Sleep(Milliseconds(200));
+        Keyboard select("select mode:\n保存するときの名前入力してね", {"ニックネーム", "ステータス", "妖怪ID"});
+        int answer = select.Open();
+        std::string out;
+        if (answer != -1)
+        {
+          KeyboardImpl a("");
+          a.SetLayout(Layout::QWERTY);
+          a.Run();
+          out = a.GetInput();
+          if (out.empty())
+            answer = -1;
+        }
+        Process::Play();
+        isOpened = false;
+        afterKeyboard = true;
+        Directory::Create("YokaiEditor");
+        File file;
+        switch (answer)
+        {
+        case -1:
+          break;
+        case 0:
+          File::Create("YokaiEditor/nickname_" + out + ".bin");
+          File::Open(file, "YokaiEditor/nickname_" + out + ".bin");
+          file.Dump(0x870DBBC + offset, 32);
+          file.Flush();
+          file.Close();
+          break;
+        case 1:
+          File::Create("YokaiEditor/status_" + out + ".bin");
+          File::Open(file, "YokaiEditor/status_" + out + ".bin");
+          file.Write((void *)&level, 1);
+          file.Write((void *)&hp, 2);
+          file.Write((void *)&power, 2);
+          file.Write((void *)&magic, 2);
+          file.Write((void *)&protect, 2);
+          file.Write((void *)&speed, 2);
+          file.Close();
+          break;
+        case 2:
+          File::Create("YokaiEditor/yokaiID_" + out + ".bin");
+          File::Open(file, "YokaiEditor/yokaiID_" + out + ".bin");
+          file.Dump(0x870DBB8 + offset, 4);
+          file.Close();
+          break;
+        default:
+          break;
+        }
+      }
+      else if (TouchCircle(265, 190, 25))
+      {
+        Sleep(Milliseconds(200));
+        Keyboard select("select mode:", {"ニックネーム", "ステータス", "妖怪ID", "削除"});
+        int answer = select.Open();
+        Process::Play();
+        isOpened = false;
+        afterKeyboard = true;
+        Directory dir("YokaiEditor");
+        File file;
+        StringVector files_name;
+        switch (answer)
+        {
+        case -1:
+          break;
+        case 0:
+        {
+          dir.ListFiles(files_name, "nickname_");
+          for (int i = 0; i < files_name.size(); i++)
+          {
+            files_name[i].replace(files_name[i].find("nickname_"), 9, "").replace(files_name[i].find(".bin"), 4, "");
+          }
+          if (files_name.size() == 0)
+          {
+            files_name.push_back("ok");
+            Keyboard file_select("no files found", files_name);
+            file_select.Open();
+            break;
+          }
+          Keyboard file_select("select:", files_name);
+          File::Open(file, "YokaiEditor/nickname_" + files_name[file_select.Open()] + ".bin");
+          file.Inject(0x870DBBC + offset, 32);
+          file.Close();
+          break;
+        }
+        case 1:
+        {
+          dir.ListFiles(files_name, "status_");
+          for (int i = 0; i < files_name.size(); i++)
+          {
+            files_name[i].replace(files_name[i].find("status_"), 7, "").replace(files_name[i].find(".bin"), 4, "");
+          }
+          if (files_name.size() == 0)
+          {
+            files_name.push_back("ok");
+            Keyboard file_select("no files found", files_name);
+            file_select.Open();
+            break;
+          }
+          Keyboard file_select("select:", files_name);
+          File::Open(file, "YokaiEditor/status_" + files_name[file_select.Open()] + ".bin");
+          u8 buff_8;
+          u16 buff_16;
+          file.Read((void *)&buff_8, 1);
+          Process::Write8(0x870DC03 + offset, buff_8);
+          file.Read((void *)&buff_16, 2);
+          Process::Write16(0x870DBEC + offset, buff_16);
+          file.Read((void *)&buff_16, 2);
+          Process::Write16(0x870DC16 + offset, buff_16);
+          file.Read((void *)&buff_16, 2);
+          Process::Write16(0x870DC18 + offset, buff_16);
+          file.Read((void *)&buff_16, 2);
+          Process::Write16(0x870DC1A + offset, buff_16);
+          file.Read((void *)&buff_16, 2);
+          Process::Write16(0x870DC1C + offset, buff_16);
+          file.Close();
+          break;
+        }
+        case 2:
+        {
+          dir.ListFiles(files_name, "yokaiID_");
+          for (int i = 0; i < files_name.size(); i++)
+          {
+            files_name[i].replace(files_name[i].find("yokaiID_"), 8, "").replace(files_name[i].find(".bin"), 4, "");
+          }
+          if (files_name.size() == 0)
+          {
+            files_name.push_back("ok");
+            Keyboard file_select("no files found", files_name);
+            file_select.Open();
+            break;
+          }
+          Keyboard file_select("select:", files_name);
+          File::Open(file, "YokaiEditor/yokaiID_" + files_name[file_select.Open()] + ".bin");
+          file.Inject(0x870DBB8 + offset, 4);
+          file.Close();
+          break;
+        }
+        case 3:
+        {
+          Sleep(Milliseconds(200));
+          dir.ListFiles(files_name);
+          if (files_name.size() == 0)
+          {
+            files_name.push_back("ok");
+            Keyboard file_select("no files found", files_name);
+            file_select.Open();
+            break;
+          }
+          Keyboard file_select("select:", files_name);
+          int i = file_select.Open();
+          if (i != -1)
+            File::Remove("YokaiEditor/" + files_name[i]);
+          break;
+        }
+        default:
+          break;
         }
       }
     }

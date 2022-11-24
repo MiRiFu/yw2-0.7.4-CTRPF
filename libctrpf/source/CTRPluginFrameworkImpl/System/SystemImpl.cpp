@@ -60,7 +60,7 @@ namespace CTRPluginFramework
         IsCitra = output;
         _g_isCitra = output;
     }
-
+    あざす
     bool    SystemImpl::WantsToSleep(void)
     {
         return AptStatus & FLAG_WANTSTOSLEEP;
