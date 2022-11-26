@@ -19,5 +19,9 @@ namespace CTRPluginFramework
     void JPNotify(MenuEntry *entry);
 
     std::vector<u64> getFrame(int &frame);
+
+    void japKey(std::string &out, std::vector<u8> &sjis);
+    bool TouchRect(u32 x, u32 y, u32 w, u32 h);
+    bool TouchCircle(u32 x, u32 y, u8 size);
 }
 #endif
