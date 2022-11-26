@@ -1,5 +1,6 @@
 #include "cheats.hpp"
 #include "osd_plus.hpp"
+#include "osdjp.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/System/ProcessImpl.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 
@@ -446,6 +447,22 @@ namespace CTRPluginFramework
 
   void Test1(MenuEntry *entry)
   {
+  }
+
+  void JPNotify(MenuEntry *entry)
+  {
+    StringVector words = {"コ", "ン", "ニ", "チ", "ワ"};
+    if (Controller::IsKeyDown(Key::Start) && Controller::IsKeyDown(Key::Y))
+      words = {"オ", "チ", "ン", "チ", "ン"};
+    if (Controller::IsKeyPressed(Key::Start))
+    {
+      std::string buff;
+      for (int j = 0; j < 5; j++)
+      {
+        buff += words[Utils::Random(0, 4)];
+      }
+      OSDJPNotify(buff, Color(Utils::Random(0, 255), Utils::Random(0, 255), Utils::Random(0, 255)), Color(Utils::Random(0, 255), Utils::Random(0, 255), Utils::Random(0, 255)));
+      }
   }
 
   void Cheat1(MenuEntry *entry)
