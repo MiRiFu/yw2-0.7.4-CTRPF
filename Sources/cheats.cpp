@@ -1324,6 +1324,9 @@ namespace CTRPluginFramework
   int frame_num = 0;
   void BadApple(MenuEntry *entry)
   {
+    ProcessImpl::Pause(false);
+    if (entry->WasJustActivated())
+      frame_num = 0;
     std::vector<u64> str_frame = getFrame(frame_num);
 
     const Screen &screen = OSD::GetTopScreen();
@@ -1346,5 +1349,6 @@ namespace CTRPluginFramework
     {
       frame_num++;
     }
+    OSD::SwapBuffers();
   }
 }
