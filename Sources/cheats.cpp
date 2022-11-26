@@ -462,9 +462,9 @@ namespace CTRPluginFramework
         buff += words[Utils::Random(0, 4)];
       }
       u8 red = Utils::Random(0, 255), green = Utils::Random(0, 255), blue = Utils::Random(0, 255);
-      u16 sum = std::max(std::max(red,green),blue) + std::min(std::min(red,green),blue);
+      u16 sum = std::max({red, green, blue}) + std::min({red, green, blue});
       OSDJPNotify(buff, Color(red, green, blue), Color(sum - red, sum - green, sum - blue));
-      }
+    }
   }
 
   void Cheat1(MenuEntry *entry)
@@ -672,8 +672,8 @@ namespace CTRPluginFramework
     }
   }
 
-  std::vector<std::vector<std::string>> MenuEntryNameList = {{"pipes", "ぱいぷす", "パイプス", "Pipes"}, {"yokaieditor", "ようかいえでぃたー", "ヨウカイエディター", "YokaiEditor"}, {"cube", "きゅーぶ", "キューブ", "Cube"}, {"bad apple!!", "ばっどあっぷる！！", "バッドアップル！！", "Bad Apple!!"}};
-  FuncPointer MenuEntryFuncList[] = {Pipes, YokaiEditor, Cube};
+  std::vector<std::vector<std::string>> MenuEntryNameList = {{"pipes", "ぱいぷす", "パイプス", "Pipes"}, {"yokaieditor", "ようかいえでぃたー", "ヨウカイエディター", "YokaiEditor"}, {"cube", "きゅーぶ", "キューブ", "Cube"}, {"bad apple!!", "ばっどあっぷる！！", "バッドアップル！！", "Bad Apple!!"}, {"jpnotify", "じぇーぴーにほんごのてぃふぁい", "ジェーピーニホンゴノティファイ", "JPNotify"}};
+  FuncPointer MenuEntryFuncList[] = {Pipes, YokaiEditor, Cube, BadApple, JPNotify};
   void Search(MenuEntry *entry)
   {
     std::string input;
@@ -1322,29 +1322,27 @@ namespace CTRPluginFramework
   }
 
   int frame_num = 0;
-  std::string str_frame;
   void BadApple(MenuEntry *entry)
   {
-    std::vector<u64> str_frame = {0xfffff, 0x1fffff, 0x3fffff, 0x7fffff, 0x7fffff, 0x7fffff, 0xffffff, 0x7fffff, 0x1fffff, 0x1fffff, 0x7fffff, 0x7ffff, 0x1ffff, 0x7fff, 0x1fff, 0xfff, 0xfff, 0x7ff, 0x7ff, 0x3ff, 0x7f, 0x1f};
-    // std::vector<u64> str_frame = getFrame(frame_num);
+    std::vector<u64> str_frame = getFrame(frame_num);
 
-    slow++;
     const Screen &screen = OSD::GetTopScreen();
     for (int i = 0; i < str_frame.size(); i++)
     {
       u8 index = 0;
-      for (int j = 1; j < 0x1000000000000000; j *= 2)
+      for (u64 j = 1; j < 0x1000000000000000; j *= 2)
       {
         if (str_frame[i] & j)
-          screen.DrawRect(360 - index * 6, 10 + i * 10, 6, 10, Color::White);
+          screen.DrawRect(380 - index * 6, 10 + i * 10, 6, 10, Color::White);
         else
-          screen.DrawRect(360 - index * 6, 20 + i * 10, 6, 10, Color::Black);
+          screen.DrawRect(380 - index * 6, 10 + i * 10, 6, 10, Color::Black);
         index++;
       }
     }
 
     screen.DrawSysfont(Utils::ToString(frame_num, 0), 0, 0);
-    if (slow % 0x10 == 0)
+    slow++;
+    if (slow % 0x7 == 0)
     {
       frame_num++;
     }

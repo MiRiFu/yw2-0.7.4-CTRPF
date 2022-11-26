@@ -46,5 +46,6 @@
     "iostream": "cpp",
     "istream": "cpp",
     "bitset": "cpp"
-  }
+  },
+  "python.analysis.typeCheckingMode": "basic"
 }
