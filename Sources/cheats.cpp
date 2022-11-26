@@ -461,7 +461,9 @@ namespace CTRPluginFramework
       {
         buff += words[Utils::Random(0, 4)];
       }
-      OSDJPNotify(buff, Color(Utils::Random(0, 255), Utils::Random(0, 255), Utils::Random(0, 255)), Color(Utils::Random(0, 255), Utils::Random(0, 255), Utils::Random(0, 255)));
+      u8 red = Utils::Random(0, 255), green = Utils::Random(0, 255), blue = Utils::Random(0, 255);
+      u16 sum = std::max(std::max(red,green),blue) + std::min(std::min(red,green),blue);
+      OSDJPNotify(buff, Color(red, green, blue), Color(sum - red, sum - green, sum - blue));
       }
   }
 
