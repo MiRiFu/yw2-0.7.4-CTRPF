@@ -238,7 +238,7 @@ namespace CTRPluginFramework
         *folder1 += new MenuEntry("pipes", Pipes, "startで消えます");
         *folder1 += new MenuEntry("YokaiEditor", YokaiEditor, "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)");
         *folder1 += new MenuEntry("Cube", Cube);
-        *folder1 += new MenuEntry("Bad Apple!!", BadApple);
+        *folder1 += new MenuEntry("Bad Apple!!", BadApple,"止めるときはメニュー開き直してください");
         *folder1 += new MenuEntry("JPNotify", JPNotify,"startで表示\n(Y押しながら押すんじゃないぞ！)");
         menu += folder1;
     }

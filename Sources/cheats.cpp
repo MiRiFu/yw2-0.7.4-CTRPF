@@ -6,8 +6,8 @@
 
 namespace CTRPluginFramework
 {
-  u16 U16_ChrArray[50];
-  bool KatakanaMode = 1;
+  u16 U16_ChrArray[100];
+  bool KatakanaMode;
   bool KeyboardOpened;
 
   u8 selectedIndex;
@@ -42,7 +42,6 @@ namespace CTRPluginFramework
       if (pos.x >= x && pos.y >= y && pos.x <= (x + w) && pos.y <= (y + h))
         return true;
     }
-
     return false;
   }
 
@@ -1325,6 +1324,7 @@ namespace CTRPluginFramework
   void BadApple(MenuEntry *entry)
   {
     ProcessImpl::Pause(false);
+
     if (entry->WasJustActivated())
       frame_num = 0;
     std::vector<u64> str_frame = getFrame(frame_num);
@@ -1342,8 +1342,6 @@ namespace CTRPluginFramework
         index++;
       }
     }
-
-    screen.DrawSysfont(Utils::ToString(frame_num, 0), 0, 0);
     slow++;
     if (slow % 0x7 == 0)
     {
