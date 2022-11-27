@@ -17,6 +17,7 @@ namespace CTRPluginFramework
     void Cube(MenuEntry *entry);
     void BadApple(MenuEntry *entry);
     void JPNotify(MenuEntry *entry);
+    void ChangeBackGround(MenuEntry *entry);
 
     std::vector<u64> getFrame(int &frame);
 

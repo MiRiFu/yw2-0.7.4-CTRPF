@@ -234,12 +234,13 @@ namespace CTRPluginFramework
 
         MenuFolder *folder1 = new MenuFolder("other");
         *folder1 += new MenuEntry("Cheat1", Cheat1);
-        *folder1 += new MenuEntry("Test1", Test1);
+        *folder1 += new MenuEntry("Test1", nullptr, Test1);
         *folder1 += new MenuEntry("pipes", Pipes, "startで消えます");
         *folder1 += new MenuEntry("YokaiEditor", YokaiEditor, "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)");
         *folder1 += new MenuEntry("Cube", Cube);
-        *folder1 += new MenuEntry("Bad Apple!!", BadApple,"止めるときはメニュー開き直してください");
-        *folder1 += new MenuEntry("JPNotify", JPNotify,"startで表示\n(Y押しながら押すんじゃないぞ！)");
+        *folder1 += new MenuEntry("Bad Apple!!", BadApple, "止めるときはメニュー開き直してください");
+        *folder1 += new MenuEntry("JPNotify", JPNotify, "startで表示\n(Y押しながら押すんじゃないぞ！)");
+        *folder1 += new MenuEntry("ChangeBackGround", nullptr, ChangeBackGround, "BMPフォルダに画像を入れてください");
         menu += folder1;
     }
 
@@ -255,7 +256,6 @@ namespace CTRPluginFramework
         // Synnchronize the menu with frame event
         menu->SynchronizeWithFrame(true);
         menu->ShowWelcomeMessage(false);
-
 
         // Init our menu entries & folders
         InitMenu(*menu);

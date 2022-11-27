@@ -1,6 +1,7 @@
 #include "cheats.hpp"
 #include "osd_plus.hpp"
 #include "osdjp.hpp"
+#include "AliceCodes.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/System/ProcessImpl.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 
@@ -943,5 +944,23 @@ namespace CTRPluginFramework
       frame_num++;
     }
     OSD::SwapBuffers();
+  }
+
+  void ChangeBackGround(MenuEntry *entry)
+  {
+    StringVector files_name;
+    Directory("BMP").ListFiles(files_name);
+    switch (Keyboard("which Background?:", {"Top", "Bottom"}).Open())
+    {
+    case 0:
+      if (AliceCodes::SetTopScreenBackground("BMP/" + files_name[Keyboard("select BMP:", files_name).Open()]) != 1)
+        MessageBox(Color::Red << "An error has occurred.\nMaybe file size is bad.")();
+      break;
+    case 1:
+      if (AliceCodes::SetBottomScreenBackground("BMP/" + files_name[Keyboard("select BMP:", files_name).Open()]) != 1)
+        MessageBox(Color::Red << "An error has occurred.\nMaybe file size is bad.")();
+    default:
+      break;
+    }
   }
 }
