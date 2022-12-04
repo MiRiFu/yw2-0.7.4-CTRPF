@@ -970,32 +970,33 @@ namespace CTRPluginFramework
 
   void ChangeBackGround(MenuEntry *entry)
   {
-    Directory::Create("BMP");
-    StringVector files_name;
-    Directory("BMP").ListFiles(files_name);
-    std::string file_name;
-    switch (Keyboard("which Background?:", {"Top", "Bottom"}).Open())
+    StringVector files_name = {};
+    Directory("BMP", true).ListFiles(files_name);
+    if (!(files_name.size()))
     {
-    case 0:
-    {
-      u8 answer = Keyboard("select BMP:", files_name).Open();
-      if (answer != -1)
-        file_name = files_name[answer];
-      else
-        break;
-      AliceCodes::SetTopScreenBackground("BMP/" + file_name);
-      break;
+      MessageBox("no files found")();
+      return;
     }
-    case 1:
+    for (int i = 0; i < files_name.size(); i++)
     {
-      u8 answer = Keyboard("select BMP:", files_name).Open();
-      if (answer != -1)
-        file_name = files_name[answer];
+      BMPImage *image = new BMPImage("BMP/" + files_name[i]);
+      if (image->Width() == 340 && image->Height() == 200)
+        files_name[i] = files_name[i] + "(Top)";
+      else if (image->Width() == 280 && image->Height() == 200)
+        files_name[i] = files_name[i] + "(Bottom)";
       else
-        break;
-      AliceCodes::SetBottomScreenBackground("BMP/" + file_name);
-      break;
+        files_name.erase(files_name.begin() + i);
+      delete image;
     }
+    Keyboard key("select BMP:", files_name);
+    s8 i = key.Open();
+    if (i != -1)
+    {
+      u8 length = files_name[i].size();
+      if (files_name[i].at(length - 2) == 'p')
+        AliceCodes::SetTopScreenBackground("BMP/" + files_name[i].substr(0, length - 5));
+      else if (files_name[i].at(length - 2) == 'm')
+        AliceCodes::SetBottomScreenBackground("BMP/" + files_name[i].substr(0, length - 8));
     }
   }
 }
