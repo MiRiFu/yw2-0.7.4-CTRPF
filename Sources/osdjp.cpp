@@ -30,7 +30,7 @@ namespace CTRPluginFramework
   bool OSDJPNotify(const std::string &str, const Color &fg, const Color &bg)
   {
     OSD::Run(OSDJP);
-    if (OSDJPlist.size() >= 50)
+    if (OSDJPlist.size() >= 20)
       return false;
     OSDJPlist.push_back({str, Color(fg.ToU32()), Color(bg.ToU32()), Clock()});
     return true;

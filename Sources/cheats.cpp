@@ -42,6 +42,28 @@ namespace CTRPluginFramework
 
   void Test1(MenuEntry *entry)
   {
+    StringVector yokaiNames;
+    std::vector<u32> yokaiIDs;
+    u8 page = 0;
+
+    for (int i = 0; i < 20; i++)
+    {
+      u32 ModelAddress = 0;
+      for (int y = 0; y < 602; y++)
+      {
+        if (*(u32 *)(0x08576868 + (i * 0x84)) == *(u32 *)(0x08570774 + (y * 0x28)))
+        {
+          ModelAddress = 0x08570774 + (y * 0x28);
+          break;
+        }
+      }
+      if (ModelAddress)
+      {
+        MessageBox(ProcessPlus::ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04))))();
+      }
+    }
+    // Keyboard key("select",yokaiNames);
+    // key.Open();
   }
 
   void JPNotify(MenuEntry *entry)
@@ -277,7 +299,9 @@ namespace CTRPluginFramework
     japKey(input, sjis);
     if (input.empty())
       return;
-    std::transform(input.cbegin(), input.cend(), input.begin(), tolower);
+    std::transform(input.begin(), input.end(), input.begin(), [](unsigned char c)
+                   { return std::tolower(c); });
+    // std::transform(input.cbegin(), input.cend(), input.begin(), tolower);
     for (int i = 0; i < MenuEntryNameList.size(); i++)
     {
       for (int j = 0; j < MenuEntryNameList[i].size(); j++)
@@ -314,7 +338,7 @@ namespace CTRPluginFramework
     u8 level, leaderIndex, nickname[32];
     u16 hp, power, magic, protect, speed;
     u32 yokaiID, offset;
-    std::string nickname_str;
+    std::string nickname_str, yokaiName;
     Process::Read8(0x8A4BD20, leaderIndex);
     offset = leaderIndex * 0xC4;
     const Screen &topScr = OSD::GetTopScreen();
@@ -352,9 +376,7 @@ namespace CTRPluginFramework
           u16 buff;
 
           if (nickname[i] == 0)
-          {
             break;
-          }
           else if ((nickname[i] < 0x80) || (nickname[i] > 0xA0))
           {
             buff = Convert::sjisToUtf16(nickname[i]);
@@ -370,10 +392,30 @@ namespace CTRPluginFramework
             i += 2;
           }
         }
+        for (int i = 0; i < 705; i++)
+        {
+          if (*(u32 *)(0x08576864 + (i * 0x84)) == *(u32 *)(0x870DBB8 + offset))
+          {
+            u32 ModelAddress = 0;
+            for (int y = 0; y < 602; y++)
+            {
+              if (*(u32 *)(0x08576868 + (i * 0x84)) == *(u32 *)(0x08570774 + (y * 0x28)))
+              {
+                ModelAddress = 0x08570774 + (y * 0x28);
+                break;
+              }
+            }
+            if (ModelAddress)
+            {
+              yokaiName = ProcessPlus::ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04)));
+              break;
+            }
+          }
+        }
 
         DrawSysfontPlus(topScr, "Yokai Editor", 37, 25, 0, 0, Color::White, Color::Black, Color::Red, true);
         DrawLine(topScr, 37, 42, 180, 42, Color::White);
-        DrawSysfontPlus(topScr, Utils::Format("妖怪: (ID: %X)", yokaiID), 36, 55, 0, 0, Color::White, Color::Black, Color::Red, true);
+        DrawSysfontPlus(topScr, "妖怪: " + yokaiName + Utils::Format(" (ID: %X)", yokaiID), 36, 55, 0, 0, Color::White, Color::Black, Color::Red, true);
         DrawSysfontPlus(topScr, "ニックネーム: " + nickname_str, 36, 75, 0, 0, Color::White, Color::Black, Color::Red, true);
         DrawSysfontPlus(topScr, Utils::Format("レベル: %d", level), 36, 95, 0, 0, Color::White, Color::Black, Color::Red, true);
         DrawSysfontPlus(topScr, Utils::Format("HP: %d", hp), 36, 115, 0, 0, Color::White, Color::Black, Color::Red, true);
@@ -683,22 +725,26 @@ namespace CTRPluginFramework
             break;
           }
           Keyboard file_select("select:", files_name);
-          File::Open(file, "YokaiEditor/status_" + files_name[file_select.Open()] + ".bin");
-          u8 buff_8;
-          u16 buff_16;
-          file.Read((void *)&buff_8, 1);
-          Process::Write8(0x870DC03 + offset, buff_8);
-          file.Read((void *)&buff_16, 2);
-          Process::Write16(0x870DBEC + offset, buff_16);
-          file.Read((void *)&buff_16, 2);
-          Process::Write16(0x870DC16 + offset, buff_16);
-          file.Read((void *)&buff_16, 2);
-          Process::Write16(0x870DC18 + offset, buff_16);
-          file.Read((void *)&buff_16, 2);
-          Process::Write16(0x870DC1A + offset, buff_16);
-          file.Read((void *)&buff_16, 2);
-          Process::Write16(0x870DC1C + offset, buff_16);
-          file.Close();
+          answer = file_select.Open();
+          if (answer != -1)
+          {
+            File::Open(file, "YokaiEditor/status_" + files_name[answer] + ".bin");
+            u8 buff_8;
+            u16 buff_16;
+            file.Read((void *)&buff_8, 1);
+            Process::Write8(0x870DC03 + offset, buff_8);
+            file.Read((void *)&buff_16, 2);
+            Process::Write16(0x870DBEC + offset, buff_16);
+            file.Read((void *)&buff_16, 2);
+            Process::Write16(0x870DC16 + offset, buff_16);
+            file.Read((void *)&buff_16, 2);
+            Process::Write16(0x870DC18 + offset, buff_16);
+            file.Read((void *)&buff_16, 2);
+            Process::Write16(0x870DC1A + offset, buff_16);
+            file.Read((void *)&buff_16, 2);
+            Process::Write16(0x870DC1C + offset, buff_16);
+            file.Close();
+          }
           break;
         }
         case 2:
@@ -716,9 +762,13 @@ namespace CTRPluginFramework
             break;
           }
           Keyboard file_select("select:", files_name);
-          File::Open(file, "YokaiEditor/yokaiID_" + files_name[file_select.Open()] + ".bin");
-          file.Inject(0x870DBB8 + offset, 4);
-          file.Close();
+          answer = file_select.Open();
+          if (answer != -1)
+          {
+            File::Open(file, "YokaiEditor/yokaiID_" + files_name[answer] + ".bin");
+            file.Inject(0x870DBB8 + offset, 4);
+            file.Close();
+          }
           break;
         }
         case 3:
@@ -733,9 +783,9 @@ namespace CTRPluginFramework
             break;
           }
           Keyboard file_select("select:", files_name);
-          int i = file_select.Open();
-          if (i != -1)
-            File::Remove("YokaiEditor/" + files_name[i]);
+          answer = file_select.Open();
+          if (answer != -1)
+            File::Remove("YokaiEditor/" + files_name[answer]);
           break;
         }
         default:
@@ -836,34 +886,30 @@ namespace CTRPluginFramework
     }
     for (int k = 0; k < width * height; k++)
     {
-      if (buffer[k] == 64)
+      switch (buffer[k])
       {
+      case 64:
         screenColor[k % width][k / width] = Color::Red;
-      }
-      if (buffer[k] == 36)
-      {
+        break;
+      case 36:
         screenColor[k % width][k / width] = Color::Blue;
-      }
-      if (buffer[k] == 126)
-      {
+        break;
+      case 126:
         screenColor[k % width][k / width] = Color::Orange;
-      }
-      if (buffer[k] == 35)
-      {
+        break;
+      case 35:
         screenColor[k % width][k / width] = Color::Green;
-      }
-      if (buffer[k] == 59)
-      {
+        break;
+      case 59:
         screenColor[k % width][k / width] = Color::White;
-      }
-      if (buffer[k] == 43)
-      {
+        break;
+      case 43:
         screenColor[k % width][k / width] = Color::Yellow;
+        break;
       }
     }
   }
 
-  u32 slow = 0;
   void Cube(MenuEntry *entry)
   {
     const Screen &screen = OSD::GetTopScreen();
@@ -877,43 +923,23 @@ namespace CTRPluginFramework
         }
       }
     }
-    slow++;
-    if (slow % 10 == 0)
-    {
-      rotateCube();
-    }
     if (Controller::IsKeyDown(Key::CPadLeft))
-    {
       BB -= 0.05;
-    }
     if (Controller::IsKeyDown(Key::CPadRight))
-    {
       BB += 0.05;
-    }
     if (Controller::IsKeyDown(Key::CPadUp))
-    {
       AA += 0.05;
-    }
     if (Controller::IsKeyDown(Key::CPadDown))
-    {
       AA -= 0.05;
-    }
     if (Controller::IsKeyDown(Key::CStickUp))
-    {
       CC -= 0.05;
-    }
     if (Controller::IsKeyDown(Key::CStickDown))
-    {
       CC += 0.05;
-    }
     if (Controller::IsKeyDown(Key::CStickLeft))
-    {
       distanceFromCam -= 5;
-    }
     if (Controller::IsKeyDown(Key::CStickRight))
-    {
       distanceFromCam += 5;
-    }
+    Sleep(Milliseconds(300));
   }
 
   int frame_num = 0;
@@ -938,16 +964,13 @@ namespace CTRPluginFramework
         index++;
       }
     }
-    slow++;
-    if (slow % 0x7 == 0)
-    {
-      frame_num++;
-    }
+    Sleep(Milliseconds(500));
     OSD::SwapBuffers();
   }
 
   void ChangeBackGround(MenuEntry *entry)
   {
+    Directory::Create("BMP");
     StringVector files_name;
     Directory("BMP").ListFiles(files_name);
     std::string file_name;

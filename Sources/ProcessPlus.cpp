@@ -1,230 +1,258 @@
-#include "Helpers/ProcessPlus.hpp"
+#include "Helpers.hpp"
 
 namespace CTRPluginFramework
 {
-    void ProcessPlus::PointerWrite8(u32 Pointer, u32 Offset, u8 Value)
+  void ProcessPlus::PointerWrite8(u32 Pointer, u32 Offset, u8 Value)
+  {
+    u32 Address;
+
+    if (Process::Read32(Pointer, Address))
     {
-        u32 Address;
-
-        if (Process::Read32(Pointer, Address))
-        {
-            Process::Write8(Address + Offset, Value);
-        }
+      Process::Write8(Address + Offset, Value);
     }
+  }
 
-    void ProcessPlus::PointerWrite16(u32 Pointer, u32 Offset, u16 Value)
+  void ProcessPlus::PointerWrite16(u32 Pointer, u32 Offset, u16 Value)
+  {
+    u32 Address;
+
+    if (Process::Read32(Pointer, Address))
     {
-        u32 Address;
-
-        if (Process::Read32(Pointer, Address))
-        {
-            Process::Write16(Address + Offset, Value);
-        }
+      Process::Write16(Address + Offset, Value);
     }
+  }
 
-    void ProcessPlus::PointerWrite32(u32 Pointer, u32 Offset, u32 Value)
+  void ProcessPlus::PointerWrite32(u32 Pointer, u32 Offset, u32 Value)
+  {
+    u32 Address;
+
+    if (Process::Read32(Pointer, Address))
     {
-        u32 Address;
-
-        if (Process::Read32(Pointer, Address))
-        {
-            Process::Write32(Address + Offset, Value);
-        }
+      Process::Write32(Address + Offset, Value);
     }
+  }
 
-    // Max: 100
-    u8 SaveValue_8[100];
-    u16 SaveValue_16[100];
-    u32 SaveValue_32[100];
+  // Max: 100
+  u8 SaveValue_8[100];
+  u16 SaveValue_16[100];
+  u32 SaveValue_32[100];
 
-    void ProcessPlus::MainWrite8(u32 Address, u8 Value, MenuEntry *entry)
+  void ProcessPlus::MainWrite8(u32 Address, u8 Value, MenuEntry *entry)
+  {
+    static u8 SaveValue;
+    static bool Check = false;
+
+    if (entry->WasJustActivated())
     {
-        static u8 SaveValue;
-        static bool Check = false;
+      if (!Check)
+      {
+        SaveValue = *(u8 *)(Address);
+        Check = true;
+      }
 
-        if (entry->WasJustActivated())
-        {
-            if (!Check)
-            {
-                SaveValue = *(u8 *)(Address);
-                Check = true;
-            }
-
-            Process::Write8(Address, Value);
-        }
-        else if (!entry->IsActivated())
-        {
-            if (Check)
-            {
-                Process::Write8(Address, SaveValue);
-
-                SaveValue = 0;
-                Check = false;
-            }
-        }
+      Process::Write8(Address, Value);
     }
-
-    void ProcessPlus::MainWrite8(const std::vector<u32> &Addresses, const std::vector<u8> &Values, MenuEntry *entry)
+    else if (!entry->IsActivated())
     {
-        int size = Addresses.size();
-        u8 SaveValue_8[size];
-        static bool Check = false;
+      if (Check)
+      {
+        Process::Write8(Address, SaveValue);
 
-        if (entry->WasJustActivated())
-        {
-            if (!Check)
-            {
-                for (int i = 0; i < size; i++)
-                {
-                    SaveValue_8[i] = *(u8 *)(Addresses[i]);
-                }
-                Check = true;
-            }
-
-            for (int i = 0; i < size; i++)
-            {
-                Process::Write8(Addresses[i], Values[i]);
-            }
-        }
-        else if (!entry->IsActivated())
-        {
-            if (Check)
-            {
-                for (int i = 0; i < size; i++)
-                {
-                    Process::Write8(Addresses[i], SaveValue_8[i]);
-                    SaveValue_8[i] = 0;
-                }
-
-                Check = false;
-            }
-        }
+        SaveValue = 0;
+        Check = false;
+      }
     }
+  }
 
-    void ProcessPlus::MainWrite16(u32 Address, u16 Value, MenuEntry *entry)
+  void ProcessPlus::MainWrite8(const std::vector<u32> &Addresses, const std::vector<u8> &Values, MenuEntry *entry)
+  {
+    int size = Addresses.size();
+    u8 SaveValue_8[size];
+    static bool Check = false;
+
+    if (entry->WasJustActivated())
     {
-        static u16 SaveValue;
-        static bool Check = false;
-
-        if (entry->WasJustActivated())
+      if (!Check)
+      {
+        for (int i = 0; i < size; i++)
         {
-            if (!Check)
-            {
-                SaveValue = *(u16 *)(Address);
-                Check = true;
-            }
-
-            Process::Write16(Address, Value);
+          SaveValue_8[i] = *(u8 *)(Addresses[i]);
         }
-        else if (!entry->IsActivated())
-        {
-            if (Check)
-            {
-                Process::Write16(Address, SaveValue);
+        Check = true;
+      }
 
-                SaveValue = 0;
-                Check = false;
-            }
-        }
+      for (int i = 0; i < size; i++)
+      {
+        Process::Write8(Addresses[i], Values[i]);
+      }
     }
-
-    void ProcessPlus::MainWrite16(const std::vector<u32> &Addresses, const std::vector<u16> &Values, MenuEntry *entry)
+    else if (!entry->IsActivated())
     {
-        int size = Addresses.size();
-        u16 SaveValue_16[size];
-        static bool Check = false;
-
-        if (entry->WasJustActivated())
+      if (Check)
+      {
+        for (int i = 0; i < size; i++)
         {
-            if (!Check)
-            {
-                for (int i = 0; i < size; i++)
-                {
-                    SaveValue_16[i] = *(u16 *)(Addresses[i]);
-                }
-                Check = true;
-            }
-
-            for (int i = 0; i < size; i++)
-            {
-                Process::Write16(Addresses[i], Values[i]);
-            }
+          Process::Write8(Addresses[i], SaveValue_8[i]);
+          SaveValue_8[i] = 0;
         }
-        else if (!entry->IsActivated())
-        {
-            if (Check)
-            {
-                for (int i = 0; i < size; i++)
-                {
-                    Process::Write16(Addresses[i], SaveValue_16[i]);
-                    SaveValue_16[i] = 0;
-                }
 
-                Check = false;
-            }
-        }
+        Check = false;
+      }
     }
+  }
 
-    void ProcessPlus::MainWrite32(u32 Address, u32 Value, MenuEntry *entry)
+  void ProcessPlus::MainWrite16(u32 Address, u16 Value, MenuEntry *entry)
+  {
+    static u16 SaveValue;
+    static bool Check = false;
+
+    if (entry->WasJustActivated())
     {
-        static u32 SaveValue;
-        static bool Check = false;
+      if (!Check)
+      {
+        SaveValue = *(u16 *)(Address);
+        Check = true;
+      }
 
-        if (entry->WasJustActivated())
-        {
-            if (!Check)
-            {
-                SaveValue = *(u32 *)(Address);
-                Check = true;
-            }
-
-            Process::Write32(Address, Value);
-        }
-        else if (!entry->IsActivated())
-        {
-            if (Check)
-            {
-                Process::Write32(Address, SaveValue);
-
-                SaveValue = 0;
-                Check = false;
-            }
-        }
+      Process::Write16(Address, Value);
     }
-
-    void ProcessPlus::MainWrite32(const std::vector<u32> &Addresses, const std::vector<u32> &Values, MenuEntry *entry)
+    else if (!entry->IsActivated())
     {
-        int size = Addresses.size();
-        static bool Check = false;
+      if (Check)
+      {
+        Process::Write16(Address, SaveValue);
 
-        if (entry->WasJustActivated())
-        {
-            if (!Check)
-            {
-                for (int i = 0; i < size; i++)
-                {
-                    SaveValue_32[i] = *(u32 *)(Addresses[i]);
-                }
-                Check = true;
-            }
-
-            for (int i = 0; i < size; i++)
-            {
-                Process::Write32(Addresses[i], Values[i]);
-            }
-        }
-        else if (!entry->IsActivated())
-        {
-            if (Check)
-            {
-                for (int i = 0; i < size; i++)
-                {
-                    Process::Write32(Addresses[i], SaveValue_32[i]);
-                    SaveValue_32[i] = 0;
-                }
-
-                Check = false;
-            }
-        }
+        SaveValue = 0;
+        Check = false;
+      }
     }
+  }
+
+  void ProcessPlus::MainWrite16(const std::vector<u32> &Addresses, const std::vector<u16> &Values, MenuEntry *entry)
+  {
+    int size = Addresses.size();
+    u16 SaveValue_16[size];
+    static bool Check = false;
+
+    if (entry->WasJustActivated())
+    {
+      if (!Check)
+      {
+        for (int i = 0; i < size; i++)
+        {
+          SaveValue_16[i] = *(u16 *)(Addresses[i]);
+        }
+        Check = true;
+      }
+
+      for (int i = 0; i < size; i++)
+      {
+        Process::Write16(Addresses[i], Values[i]);
+      }
+    }
+    else if (!entry->IsActivated())
+    {
+      if (Check)
+      {
+        for (int i = 0; i < size; i++)
+        {
+          Process::Write16(Addresses[i], SaveValue_16[i]);
+          SaveValue_16[i] = 0;
+        }
+
+        Check = false;
+      }
+    }
+  }
+
+  void ProcessPlus::MainWrite32(u32 Address, u32 Value, MenuEntry *entry)
+  {
+    static u32 SaveValue;
+    static bool Check = false;
+
+    if (entry->WasJustActivated())
+    {
+      if (!Check)
+      {
+        SaveValue = *(u32 *)(Address);
+        Check = true;
+      }
+
+      Process::Write32(Address, Value);
+    }
+    else if (!entry->IsActivated())
+    {
+      if (Check)
+      {
+        Process::Write32(Address, SaveValue);
+
+        SaveValue = 0;
+        Check = false;
+      }
+    }
+  }
+
+  void ProcessPlus::MainWrite32(const std::vector<u32> &Addresses, const std::vector<u32> &Values, MenuEntry *entry)
+  {
+    int size = Addresses.size();
+    static bool Check = false;
+
+    if (entry->WasJustActivated())
+    {
+      if (!Check)
+      {
+        for (int i = 0; i < size; i++)
+        {
+          SaveValue_32[i] = *(u32 *)(Addresses[i]);
+        }
+        Check = true;
+      }
+
+      for (int i = 0; i < size; i++)
+      {
+        Process::Write32(Addresses[i], Values[i]);
+      }
+    }
+    else if (!entry->IsActivated())
+    {
+      if (Check)
+      {
+        for (int i = 0; i < size; i++)
+        {
+          Process::Write32(Addresses[i], SaveValue_32[i]);
+          SaveValue_32[i] = 0;
+        }
+
+        Check = false;
+      }
+    }
+  }
+
+  std::string ProcessPlus::ReadSJIS(u32 Address)
+  {
+    std::string out = "";
+    u8 num = 0;
+    while (1)
+    {
+      if (*(u8 *)(Address + num) == 0)
+        return out;
+      if ((*(u8 *)(Address + num) < 0x80) || (*(u8 *)(Address + num) > 0xA0))
+      {
+        u16 buff = Convert::sjisToUtf16(*(u8 *)(Address + num));
+        std::string buff_str;
+        Utils::ConvertUTF16ToUTF8(buff_str, &buff);
+        out += buff_str.substr(0, 1);
+        num++;
+      }
+      else
+      {
+      u16 buff = Convert::sjisToUtf16(((*(u8 *)(Address + num)) * 0x100) + *(u8 *)(Address + num + 1));
+      std::string buff_str;
+      Utils::ConvertUTF16ToUTF8(buff_str, &buff);
+      out += buff_str.substr(0, 3);
+      num += 2;
+      }
+    }
+    return out;
+  }
 }

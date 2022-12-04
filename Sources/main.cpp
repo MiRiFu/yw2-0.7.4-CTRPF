@@ -217,6 +217,7 @@ namespace CTRPluginFramework
     void PatchProcess(FwkSettings &settings)
     {
         ToggleTouchscreenForceOn();
+        settings.AllowSearchEngine = true;
     }
 
     // This function is called when the process exits
@@ -234,7 +235,7 @@ namespace CTRPluginFramework
 
         MenuFolder *folder1 = new MenuFolder("other");
         *folder1 += new MenuEntry("Cheat1", Cheat1);
-        *folder1 += new MenuEntry("Test1", nullptr, Test1);
+        *folder1 += new MenuEntry("Test1", nullptr,Test1);
         *folder1 += new MenuEntry("pipes", Pipes, "startで消えます");
         *folder1 += new MenuEntry("YokaiEditor", YokaiEditor, "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)");
         *folder1 += new MenuEntry("Cube", Cube);

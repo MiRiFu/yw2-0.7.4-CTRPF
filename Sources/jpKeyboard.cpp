@@ -4,7 +4,7 @@
 
 namespace CTRPluginFramework
 {
-  u16 U16_ChrArray[50+1];
+  u16 U16_ChrArray[50 + 1];
   bool KatakanaMode;
   bool KeyboardOpened;
 
@@ -29,9 +29,8 @@ namespace CTRPluginFramework
 
   void MakeU16Array()
   {
-    KatakanaMode ? Process::WriteString((u32)U16_ChrArray, Katakana, StringFormat::Utf16) : Process::WriteString((u32)U16_ChrArray, Hiragana, StringFormat::Utf16);
+    Process::WriteString((u32)U16_ChrArray, KatakanaMode ? Katakana : Hiragana, StringFormat::Utf16);
   }
-
 
   void Komoji(u16 &moji, std::vector<u8> &sjis)
   {
