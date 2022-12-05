@@ -9,8 +9,8 @@ namespace CTRPluginFramework
 	class AliceCodes
 	{
 	public:
-		static Result SetTopScreenBackground(const std::string &filename, bool just_size = true);
-		static Result SetBottomScreenBackground(const std::string &filename, bool just_size = true);
+		static Result SetTopScreenBackground(const std::string &filename, bool resize = false);
+		static Result SetBottomScreenBackground(const std::string &filename, bool resize = false);
 	};
 }
 

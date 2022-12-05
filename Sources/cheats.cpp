@@ -1,45 +1,12 @@
 #include "cheats.hpp"
-#include "osd_plus.hpp"
 #include "osdjp.hpp"
 #include "AliceCodes.hpp"
+#include "KaniCodes.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/System/ProcessImpl.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 
 namespace CTRPluginFramework
 {
-  bool TouchRect(u32 x, u32 y, u32 w, u32 h)
-  {
-    if (Touch::IsDown())
-    {
-      UIntVector pos = Touch::GetPosition();
-      if (pos.x >= x && pos.y >= y && pos.x <= (x + w) && pos.y <= (y + h))
-        return true;
-    }
-    return false;
-  }
-
-  bool TouchCircle(u32 x, u32 y, u8 size)
-  {
-    u32 rectLength = (size * 2) / 1.41421356237;
-    u32 miniRadius = rectLength / 2;
-
-    u32 rectX = x - miniRadius;
-    u32 rectY = y - miniRadius;
-    if (TouchRect(rectX, rectY, rectLength, rectLength))
-      return true;
-
-    UIntVector pos = Touch::GetPosition();
-    for (int r = miniRadius; r < size; r++)
-    {
-      for (int angle = 0; angle < 360; angle++)
-      {
-        if (pos.x == x + cos(DegreeToRadian(angle)) * r && pos.y == y + sin(DegreeToRadian(angle)) * r)
-          return true;
-      }
-    }
-    return false;
-  }
-
   void Test1(MenuEntry *entry)
   {
     StringVector yokaiNames;
@@ -977,26 +944,19 @@ namespace CTRPluginFramework
       MessageBox("no files found")();
       return;
     }
-    for (int i = 0; i < files_name.size(); i++)
-    {
-      BMPImage *image = new BMPImage("BMP/" + files_name[i]);
-      if (image->Width() == 340 && image->Height() == 200)
-        files_name[i] = files_name[i] + "(Top)";
-      else if (image->Width() == 280 && image->Height() == 200)
-        files_name[i] = files_name[i] + "(Bottom)";
-      else
-        files_name.erase(files_name.begin() + i);
-      delete image;
-    }
     Keyboard key("select BMP:", files_name);
     s8 i = key.Open();
     if (i != -1)
     {
-      u8 length = files_name[i].size();
-      if (files_name[i].at(length - 2) == 'p')
-        AliceCodes::SetTopScreenBackground("BMP/" + files_name[i].substr(0, length - 5));
-      else if (files_name[i].at(length - 2) == 'm')
-        AliceCodes::SetBottomScreenBackground("BMP/" + files_name[i].substr(0, length - 8));
+      switch(Keyboard("which", {"Top", "Bottom"}).Open())
+      {
+      case 0:
+        AliceCodes::SetTopScreenBackground("BMP/" + files_name[i], false);
+        break;
+      case 1:
+        AliceCodes::SetBottomScreenBackground("BMP/" + files_name[i],false);
+        break;
+      }
     }
   }
 }

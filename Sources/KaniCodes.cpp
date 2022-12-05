@@ -1,7 +1,241 @@
-#include "Helpers.hpp"
+#include "KaniCodes.hpp"
 
 namespace CTRPluginFramework
 {
+  void DrawLine(const Screen &scr, int srcX, int srcY, int dstX, int dstY, const Color &color)
+  {
+    float x, y, dx, dy, step;
+    int i;
+
+    dx = (dstX - srcX);
+    dy = (dstY - srcY);
+
+    if (abs(dx) >= abs(dy))
+    {
+      step = abs(dx);
+    }
+    else
+    {
+      step = abs(dy);
+    }
+
+    dx = dx / step;
+    dy = dy / step;
+    x = srcX;
+    y = srcY;
+    i = 1;
+
+    while (i <= step)
+    {
+      scr.DrawPixel(x, y, color);
+      x = x + dx;
+      y = y + dy;
+      i++;
+    }
+  }
+
+  void DrawPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground, const Color &background, const Color &border, int fontAlign)
+  {
+    int bgWidth = OSD::GetTextWidth(false, str);
+    int height = 10 + padding * 2;
+
+    scr.DrawRect(posX, posY, bgWidth + (borderWidth * 2) + (padding * 2), borderWidth, border);
+    scr.DrawRect(posX + borderWidth + padding + bgWidth + padding, posY + borderWidth, borderWidth, height, border);
+    scr.DrawRect(posX, posY + borderWidth + height, bgWidth + (borderWidth * 2) + (padding)*2, borderWidth, border);
+    scr.DrawRect(posX, posY + borderWidth, borderWidth, height, border);
+
+    scr.DrawRect(
+        posX + borderWidth,
+        posY + borderWidth,
+        bgWidth + padding * 2,
+        10 + padding * 2,
+        background);
+
+    u32 strX = 0;
+    u32 strY = 0;
+    if (fontAlign == 0)
+    {
+      strX = posX + borderWidth;
+      strY = posY + borderWidth;
+    }
+    else if (fontAlign == 1)
+    {
+      strX = posX + borderWidth + padding;
+      strY = posY + borderWidth;
+    }
+    else if (fontAlign == 2)
+    {
+      strX = posX + borderWidth + (padding * 2);
+      strY = posY + borderWidth;
+    }
+    else if (fontAlign == 3)
+    {
+      strX = posX + borderWidth + (padding * 2);
+      strY = posY + borderWidth + padding;
+    }
+    else if (fontAlign == 4)
+    {
+      strX = posX + borderWidth + (padding * 2);
+      strY = posY + borderWidth + padding * 2;
+    }
+    else if (fontAlign == 5)
+    {
+      strX = posX + borderWidth + padding;
+      strY = posY + borderWidth + padding * 2;
+    }
+    else if (fontAlign == 6)
+    {
+      strX = posX + borderWidth;
+      strY = posY + borderWidth + padding * 2;
+    }
+    else if (fontAlign == 7)
+    {
+      strX = posX + borderWidth;
+      strY = posY + borderWidth + padding;
+    }
+    else if (fontAlign == 8)
+    {
+      strX = posX + borderWidth + padding;
+      strY = posY + borderWidth + padding;
+    }
+
+    scr.Draw(
+        str,
+        strX,
+        strY,
+        foreground,
+        background);
+  }
+
+  void DrawSysfontPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground, const Color &background, const Color &border, bool fillBackground, bool rightAligned, int fontAlign)
+  {
+    int bgWidth = OSD::GetTextWidth(true, str);
+    int height = 16 + padding * 2;
+    if (rightAligned)
+    {
+      scr.DrawRect(posX - bgWidth - (borderWidth * 2) - (padding), posY, bgWidth + (borderWidth * 2) + (padding * 2), borderWidth, border);
+      scr.DrawRect(posX - borderWidth, posY + borderWidth, borderWidth, height, border);
+      scr.DrawRect(posX - bgWidth - (borderWidth * 2) - (padding), posY + borderWidth + height, bgWidth + (borderWidth * 2) + (padding)*2, borderWidth, border);
+      scr.DrawRect(posX - bgWidth - (borderWidth * 2) - (padding), posY + borderWidth, borderWidth, height, border);
+      if (fillBackground)
+      {
+        scr.DrawRect(
+            posX + borderWidth - bgWidth,
+            posY + borderWidth,
+            bgWidth + padding * 2,
+            16 + padding * 2,
+            background);
+      }
+      scr.DrawSysfont(
+          str,
+          posX + borderWidth + padding - bgWidth,
+          posY + borderWidth + padding,
+          foreground);
+    }
+    else
+    {
+      scr.DrawRect(posX, posY, bgWidth + (borderWidth * 2) + (padding * 2), borderWidth, border);
+      scr.DrawRect(posX + borderWidth + padding + bgWidth + padding, posY + borderWidth, borderWidth, height, border);
+      scr.DrawRect(posX, posY + borderWidth + height, bgWidth + (borderWidth * 2) + (padding)*2, borderWidth, border);
+      scr.DrawRect(posX, posY + borderWidth, borderWidth, height, border);
+
+      if (fillBackground)
+      {
+        scr.DrawRect(
+            posX + borderWidth,
+            posY + borderWidth,
+            bgWidth + padding * 2,
+            16 + padding * 2,
+            background);
+      }
+
+      u32 strX = 0;
+      u32 strY = 0;
+      if (fontAlign == 0)
+      {
+        strX = posX + borderWidth;
+        strY = posY + borderWidth;
+      }
+      else if (fontAlign == 1)
+      {
+        strX = posX + borderWidth + padding;
+        strY = posY + borderWidth;
+      }
+      else if (fontAlign == 2)
+      {
+        strX = posX + borderWidth + (padding * 2);
+        strY = posY + borderWidth;
+      }
+      else if (fontAlign == 3)
+      {
+        strX = posX + borderWidth + (padding * 2);
+        strY = posY + borderWidth + padding;
+      }
+      else if (fontAlign == 4)
+      {
+        strX = posX + borderWidth + (padding * 2);
+        strY = posY + borderWidth + padding * 2;
+      }
+      else if (fontAlign == 5)
+      {
+        strX = posX + borderWidth + padding;
+        strY = posY + borderWidth + padding * 2;
+      }
+      else if (fontAlign == 6)
+      {
+        strX = posX + borderWidth;
+        strY = posY + borderWidth + padding * 2;
+      }
+      else if (fontAlign == 7)
+      {
+        strX = posX + borderWidth;
+        strY = posY + borderWidth + padding;
+      }
+      else if (fontAlign == 8)
+      {
+        strX = posX + borderWidth + padding;
+        strY = posY + borderWidth + padding;
+      }
+
+      scr.DrawSysfont(
+          str,
+          strX,
+          strY,
+          foreground);
+    }
+  }
+
+  float DegreeToRadian(float degree)
+  {
+    return degree * (M_PI / 180);
+  }
+
+  void DrawCircle(const Screen &scr, u32 x, u32 y, u32 radiusStart, u32 radiusEnd, int start, int end, const Color &color)
+  {
+    u32 rectLength = (radiusEnd * 2) / 1.41421356237;
+    u32 miniRadius = rectLength / 2;
+
+    u32 rectX = x - miniRadius;
+    u32 rectY = y - miniRadius;
+
+    if (start == 0 && end == 360 && radiusStart == 0)
+    {
+      scr.DrawRect(rectX, rectY, rectLength, rectLength, color);
+    }
+    else
+    {
+      miniRadius = radiusStart;
+    }
+
+    for (int r = miniRadius; r < radiusEnd; r++)
+    {
+      for (int angle = start; angle < end; angle++)
+      {
+        scr.DrawPixel(x + cos(DegreeToRadian(angle)) * r, y + sin(DegreeToRadian(angle)) * r, color);
+      }
+    }
+  }
+
   struct SJIS_UTF16
   {
     u16 SJIS;
@@ -7398,5 +7632,38 @@ namespace CTRPluginFramework
       }
     }
     return hiragana;
+  }
+
+  bool TouchRect(u32 x, u32 y, u32 w, u32 h)
+  {
+    if (Touch::IsDown())
+    {
+      UIntVector pos = Touch::GetPosition();
+      if (pos.x >= x && pos.y >= y && pos.x <= (x + w) && pos.y <= (y + h))
+        return true;
+    }
+    return false;
+  }
+
+  bool TouchCircle(u32 x, u32 y, u8 size)
+  {
+    u32 rectLength = (size * 2) / 1.41421356237;
+    u32 miniRadius = rectLength / 2;
+
+    u32 rectX = x - miniRadius;
+    u32 rectY = y - miniRadius;
+    if (TouchRect(rectX, rectY, rectLength, rectLength))
+      return true;
+
+    UIntVector pos = Touch::GetPosition();
+    for (int r = miniRadius; r < size; r++)
+    {
+      for (int angle = 0; angle < 360; angle++)
+      {
+        if (pos.x == x + cos(DegreeToRadian(angle)) * r && pos.y == y + sin(DegreeToRadian(angle)) * r)
+          return true;
+      }
+    }
+    return false;
   }
 }

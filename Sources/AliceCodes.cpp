@@ -4,7 +4,7 @@
 
 namespace CTRPluginFramework
 {
-  Result AliceCodes::SetTopScreenBackground(const std::string &filename, bool just_size)
+  Result AliceCodes::SetTopScreenBackground(const std::string &filename, bool resize)
   {
     BMPImage *image = new BMPImage(filename);
 
@@ -14,11 +14,21 @@ namespace CTRPluginFramework
       return -1;
     }
 
-    if (just_size && (image->Width() != 340 || image->Height() != 200))
+    if (image->Width() != 340 || image->Height() != 200)
     {
-      delete image;
-      MessageBox(Color::Red << "An error has occurred.\nfile size is wrong")();
-      return -1;
+      if (resize)
+      {
+        image->SetWidthHeight(340, 200);
+        image->SaveImage(filename.substr(0, filename.length() - 4) + "(top).bmp");
+        delete image;
+        BMPImage *image = new BMPImage(filename.substr(0, filename.length() - 4) + "(top).bmp");
+      }
+      else
+      {
+        delete image;
+        MessageBox(Color::Red << "An error has occurred.\nfile size is wrong")();
+        return -1;
+      }
     }
 
     Preferences::topBackgroundImage = image;
@@ -26,7 +36,7 @@ namespace CTRPluginFramework
     return 0;
   }
 
-  Result AliceCodes::SetBottomScreenBackground(const std::string &filename, bool just_size)
+  Result AliceCodes::SetBottomScreenBackground(const std::string &filename, bool resize)
   {
     BMPImage *image = new BMPImage(filename);
 
@@ -36,11 +46,18 @@ namespace CTRPluginFramework
       return -1;
     }
 
-    if (just_size && (image->Width() != 280 || image->Height() != 200))
+    if (image->Width() != 280 || image->Height() != 200)
     {
-      delete image;
-      MessageBox(Color::Red << "An error has occurred.\nfile size is wrong")();
-      return -1;
+      if (resize)
+      {
+        image->SetWidthHeight(280, 200);
+      }
+      else
+      {
+        delete image;
+        MessageBox(Color::Red << "An error has occurred.\nfile size is wrong")();
+        return -1;
+      }
     }
 
     Preferences::bottomBackgroundImage = image;

@@ -1,4 +1,5 @@
 #include "Helpers.hpp"
+#include "KaniCodes.hpp"
 
 namespace CTRPluginFramework
 {

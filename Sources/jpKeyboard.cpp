@@ -1,5 +1,5 @@
 #include "cheats.hpp"
-#include <math.h>
+#include "KaniCodes.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 
 namespace CTRPluginFramework
