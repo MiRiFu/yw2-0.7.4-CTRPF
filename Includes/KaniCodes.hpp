@@ -7,8 +7,7 @@
 
 namespace CTRPluginFramework
 {
-  //osd_plus
-
+  // osd_plus
   void DrawLine(const Screen &scr, int srcX, int srcY, int dstX, int dstY, const Color &color);
   void DrawPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground, const Color &background, const Color &border, int fontAlign);
   void DrawSysfontPlus(const Screen &scr, const std::string &str, u32 posX, u32 posY, u32 borderWidth, u32 padding, const Color &foreground, const Color &background, const Color &border, bool fillBackground, bool rightAligned = false, int fontAlign = 0);
@@ -21,6 +20,7 @@ namespace CTRPluginFramework
     static u16 sjisToUtf16(u16 sjis);
     static u16 utf16ToSjis(u16 utf16);
     static u16 strToSjis(std::string moji);
+    static void SetHiraganaKanji(std::string hiragana,std::string kanji);
     static std::string hiraganaToKanji(std::string hiragana);
   };
 

@@ -9,28 +9,6 @@ namespace CTRPluginFramework
 {
   void Test1(MenuEntry *entry)
   {
-    StringVector yokaiNames;
-    std::vector<u32> yokaiIDs;
-    u8 page = 0;
-
-    for (int i = 0; i < 20; i++)
-    {
-      u32 ModelAddress = 0;
-      for (int y = 0; y < 602; y++)
-      {
-        if (*(u32 *)(0x08576868 + (i * 0x84)) == *(u32 *)(0x08570774 + (y * 0x28)))
-        {
-          ModelAddress = 0x08570774 + (y * 0x28);
-          break;
-        }
-      }
-      if (ModelAddress)
-      {
-        MessageBox(ProcessPlus::ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04))))();
-      }
-    }
-    // Keyboard key("select",yokaiNames);
-    // key.Open();
   }
 
   void JPNotify(MenuEntry *entry)
@@ -931,7 +909,8 @@ namespace CTRPluginFramework
         index++;
       }
     }
-    Sleep(Milliseconds(500));
+    Sleep(Milliseconds(50));
+    frame_num++;
     OSD::SwapBuffers();
   }
 
@@ -948,15 +927,25 @@ namespace CTRPluginFramework
     s8 i = key.Open();
     if (i != -1)
     {
-      switch(Keyboard("which", {"Top", "Bottom"}).Open())
+      switch (Keyboard("which", {"Top", "Bottom"}).Open())
       {
       case 0:
         AliceCodes::SetTopScreenBackground("BMP/" + files_name[i], false);
         break;
       case 1:
-        AliceCodes::SetBottomScreenBackground("BMP/" + files_name[i],false);
+        AliceCodes::SetBottomScreenBackground("BMP/" + files_name[i], false);
         break;
       }
     }
+  }
+
+  void PlayMusic(MenuEntry *entry)
+  {
+    // StringVector files_name;
+    // Directory("MUSIC", true).ListFiles(files_name);
+    // s8 i = Keyboard("select file:", files_name).Open();
+    // if (i == -1)
+    //   return;
+    Sound("sample.bcwav").Play();
   }
 }

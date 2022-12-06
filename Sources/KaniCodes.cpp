@@ -7600,27 +7600,22 @@ namespace CTRPluginFramework
     return 0;
   }
 
+  struct HIRAGANA_KANJI
+  {
+    std::string hiragana;
+    std::string kanji;
+  };
+
+  static std::vector<HIRAGANA_KANJI> hiragana_kanji;
+  void Convert::SetHiraganaKanji(std::string hiragana, std::string kanji)
+  {
+    hiragana_kanji.push_back({hiragana, kanji});
+  }
+
   std::string Convert::hiraganaToKanji(std::string hiragana)
   {
-    struct HIRAGANA_KANJI
-    {
-      std::string hiragana;
-      std::string kanji;
-    };
-    HIRAGANA_KANJI hiragana_kanji[] = {
-        {"あ", "亜"},
-        {"あ", "有"},
-        {"あ", "宛"},
-        {"あ", "在"},
-        {"ぶし", "武士"},
-        {"さいきょう", "最強"},
-        {"かに", "蟹"},
-        {"かに", "kani537"},
-        {"かみ", "神"},
-        {"てきとう", "適当"},
-        {"てきとう", "敵等"},
-        {"かいしゃ", "会社"}};
-    for (int i = 0; i < 100; i++)
+    OSD::Notify(Utils::Format("%d ", hiragana_kanji.size()));
+    for (int i = 0; i < hiragana_kanji.size(); i++)
     {
       if (hiragana_kanji[i].hiragana == hiragana)
       {
