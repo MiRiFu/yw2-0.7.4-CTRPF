@@ -97,13 +97,9 @@ namespace CTRPluginFramework
       isReset = false;
       j = 0;
       if (i < 5)
-      {
         i++;
-      }
       else
-      {
         i = 0;
-      }
     }
     if (len > 0)
     {
@@ -124,13 +120,9 @@ namespace CTRPluginFramework
           if (j == 0)
           {
             if (buff_direct == 1)
-            {
               screenColor[xPos + 2][yPos] = Color::White;
-            }
             else
-            {
               screenColor[xPos - 2][yPos] = Color::White;
-            }
             yPos++;
             break;
           }
@@ -142,13 +134,9 @@ namespace CTRPluginFramework
           if (j == 0)
           {
             if (buff_direct == 0)
-            {
               screenColor[xPos][yPos + 2] = Color::White;
-            }
             else
-            {
               screenColor[xPos][yPos - 2] = Color::White;
-            }
             xPos++;
             break;
           }
@@ -160,13 +148,9 @@ namespace CTRPluginFramework
           if (j == 0)
           {
             if (buff_direct == 0)
-            {
               screenColor[xPos][yPos + 2] = Color::White;
-            }
             else
-            {
               screenColor[xPos][yPos - 2] = Color::White;
-            }
             xPos--;
             break;
           }
@@ -178,13 +162,9 @@ namespace CTRPluginFramework
           if (j == 0)
           {
             if (buff_direct == 1)
-            {
               screenColor[xPos + 2][yPos] = Color::White;
-            }
             else
-            {
               screenColor[xPos - 2][yPos] = Color::White;
-            }
             yPos--;
             break;
           }
@@ -204,9 +184,7 @@ namespace CTRPluginFramework
       {
         temp_direct = Utils::Random(0, 3);
         if ((temp_direct == 0 && direct != 3) || (temp_direct == 1 && direct != 2) || (temp_direct == 2 && direct != 1) || (temp_direct == 3 && direct != 0))
-        {
           break;
-        }
       }
       buff_direct = direct;
       direct = temp_direct;
@@ -216,9 +194,7 @@ namespace CTRPluginFramework
       for (u32 j = 0; j < 240; j++)
       {
         if ((screenColor[i][j] != Color::White) && (screenColor[i][j] != 255))
-        {
           screen.DrawPixel(i, j, screenColor[i][j]);
-        }
       }
     }
     if (Controller::IsKeyPressed(Key::Start))
@@ -227,9 +203,7 @@ namespace CTRPluginFramework
       for (int i = 0; i < 400; i++)
       {
         for (int j = 0; j < 240; j++)
-        {
           screenColor[i][j] = Color::White;
-        }
       }
     }
   }
@@ -280,12 +254,23 @@ namespace CTRPluginFramework
   u8 afterKeyboardSec;
   void YokaiEditor(MenuEntry *entry)
   {
-    u8 level, leaderIndex, nickname[32];
+    if ((*(u32 *)0x858088) == 0)
+    {
+      if (Controller::IsKeyPressed(Key::Start))
+        OSD::Notify("open with any medal selected");
+      return;
+    }
+    u8 level, leaderIndex, nickname[24], character, pose;
     u16 hp, power, magic, protect, speed;
-    u32 yokaiID, offset;
+    u32 yokaiID, offset, kon1, kon2;
     std::string nickname_str, yokaiName;
-    Process::Read8(0x8A4BD20, leaderIndex);
+    StringVector characters = {"超まじめで", "まじめで", "すなおで", "気ままで", "ずぼらで", "超ずぼらで", "ビビリで", "", "", "", "", "", "", "", "", ""};
+    StringVector characters2 = {"", "短気", "れいせい", "しんちょう", "やさしい", "いやらしい", "協力的", "荒くれ", "ずのう的", "動じない", "情け深い", "非道", "けんしん的", "", "", ""};
+    StringVector poses = {"きめポーズ1", "きめポーズ2", "きめポーズ3", "きめポーズ4", "おまかせ", "", "", "", "", "", "", "", "", "", ""};
+
+    Process::Read8((*(u32 *)0x858088) + 0x361, leaderIndex);
     offset = leaderIndex * 0xC4;
+    Process::Write8(0x870DC05 + offset, 0xAF);
     const Screen &topScr = OSD::GetTopScreen();
     const Screen &btmScr = OSD::GetBottomScreen();
     if ((Controller::IsKeyPressed(Key::Start)) || (afterKeyboardSec > 2))
@@ -298,7 +283,9 @@ namespace CTRPluginFramework
       else
       {
         Process::Read8(0x870DC03 + offset, level);
-        for (int i = 0; i < 32; i++)
+        Process::Read8(0x870DC04 + offset, pose);
+        Process::Read8(0x870DC08 + offset, character);
+        for (int i = 0; i < 24; i++)
         {
           Process::Read8(0x870DBBC + offset + i, nickname[i]);
         }
@@ -308,6 +295,8 @@ namespace CTRPluginFramework
         Process::Read16(0x870DC1A + offset, protect);
         Process::Read16(0x870DC1C + offset, speed);
         Process::Read32(0x870DBB8 + offset, yokaiID);
+        Process::Read32(0x870DBD4 + offset, kon1);
+        Process::Read32(0x870DBD8 + offset, kon2);
         topScr.DrawRect(30, 20, 340, 200, Color::Black);
         btmScr.DrawRect(20, 20, 280, 200, Color::Black);
         topScr.DrawRect(32, 22, 336, 196, Color::White, false);
@@ -315,11 +304,10 @@ namespace CTRPluginFramework
         btmScr.DrawRect(275, 30, 15, 15, Color::Red, false);
         DrawLine(btmScr, 278, 33, 287, 43, Color::Red);
         DrawLine(btmScr, 287, 33, 278, 43, Color::Red);
-        for (int i = 0; i < 32;)
+        for (int i = 0; i < 22;)
         {
           std::string buff_str;
           u16 buff;
-
           if (nickname[i] == 0)
             break;
           else if ((nickname[i] < 0x80) || (nickname[i] > 0xA0))
@@ -368,7 +356,9 @@ namespace CTRPluginFramework
         DrawSysfontPlus(topScr, Utils::Format("ようりょく: %d", magic), 36, 155, 0, 0, Color::White, Color::Black, Color::Red, true);
         DrawSysfontPlus(topScr, Utils::Format("まもり: %d", protect), 36, 175, 0, 0, Color::White, Color::Black, Color::Red, true);
         DrawSysfontPlus(topScr, Utils::Format("すばやさ: %d", speed), 36, 195, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(btmScr, "妖怪: ", 35, 30, 0, 0, Color::White, Color::Black, Color::Red, true);
+        DrawSysfontPlus(topScr, "性格: " + characters[character / 0x10] + " " + characters2[character % 0x10], 180, 95, 0, 0, Color::White, Color::Black, Color::Red, true);
+        DrawSysfontPlus(topScr, "きめポーズ: " + poses[pose % 0x10], 180, 115, 0, 0, Color::White, Color::Black, Color::Red, true);
+        DrawSysfontPlus(btmScr, "妖怪: " + yokaiName, 35, 30, 0, 0, Color::White, Color::Black, Color::Red, true);
         DrawSysfontPlus(btmScr, "ニックネーム: ", 35, 50, 0, 0, Color::White, Color::Black, Color::Red, true);
         btmScr.DrawRect(130, 48, 150, 19, Color::White, true);
         DrawSysfontPlus(btmScr, nickname_str, 280, 50, 0, 0, Color::Black, Color::Red, Color::Red, false, true);
@@ -399,6 +389,10 @@ namespace CTRPluginFramework
         DrawCircle(btmScr, 265, 190, 0, 25, 0, 360, Color::Orange);
         DrawPlus(btmScr, "Save", 197, 187, 0, 0, Color::White, Color::Lime, Color::Red, 8);
         DrawPlus(btmScr, "Restore", 242, 187, 0, 0, Color::White, Color::Orange, Color::Red, 8);
+        DrawRectPlus(btmScr, 175, 95, 50, 25, Color::White, true, 0);
+        DrawSysfontPlus(btmScr, "性格", 185, 100, 0, 0, Color::Black, Color::Black, Color::Red, false, false, 8);
+        DrawRectPlus(btmScr, 230, 95, 50, 25, Color::White, true, 0);
+        DrawSysfontPlus(btmScr, "ポーズ", 234, 100, 0, 0, Color::Black, Color::Black, Color::Red, false, false, 8);
 
         isOpened = true;
         afterKeyboard = false;
@@ -425,14 +419,14 @@ namespace CTRPluginFramework
         case -1:
           break;
         case 0:
-          for (int i = 0; i < 32; i++)
+          for (int i = 0; i < 23; i++)
           {
             u8 buff1;
-            for (int j = 0; j < 32; j++)
+            for (int j = 0; j < 23; j++)
             {
               Process::Read8(0x870DBBC + offset + j, nickname[j]);
             }
-            Keyboard key(Utils::Format("ニックネーム:\n%dバイト目を打ってください\n%02X %02X %02X %02X %02X %02X %02X %02X\n%02X %02X %02X %02X %02X %02X %02X %02X\n%02X %02X %02X %02X %02X %02X %02X %02X\n%02X %02X %02X %02X %02X %02X %02X %02X", i + 1, nickname[0], nickname[1], nickname[2], nickname[3], nickname[4], nickname[5], nickname[6], nickname[7], nickname[8], nickname[9], nickname[10], nickname[11], nickname[12], nickname[13], nickname[14], nickname[15], nickname[16], nickname[17], nickname[18], nickname[19], nickname[20], nickname[21], nickname[22], nickname[23], nickname[24], nickname[25], nickname[26], nickname[27], nickname[28], nickname[29], nickname[30], nickname[31]));
+            Keyboard key(Utils::Format("ニックネーム:\n%dバイト目を打ってください\n%02X %02X %02X %02X %02X %02X %02X %02X\n%02X %02X %02X %02X %02X %02X %02X %02X\n%02X %02X %02X %02X %02X %02X %02X", i + 1, nickname[0], nickname[1], nickname[2], nickname[3], nickname[4], nickname[5], nickname[6], nickname[7], nickname[8], nickname[9], nickname[10], nickname[11], nickname[12], nickname[13], nickname[14], nickname[15], nickname[16], nickname[17], nickname[18], nickname[19], nickname[20], nickname[21], nickname[22], nickname[23]));
             key.IsHexadecimal(true);
             key.SetMaxLength(2);
             if (key.Open(buff1) != -1)
@@ -447,11 +441,11 @@ namespace CTRPluginFramework
           break;
         case 1:
           japKey(out, sjis);
-          for (int j = 0; j < 32; j++)
+          for (int j = 0; j < 24; j++)
           {
             Process::Write8(0x870DBBC + offset + j, 0x00);
           }
-          for (int j = 0; j < (sjis.size() > 33 ? 32 : sjis.size()); j++)
+          for (int j = 0; j < (sjis.size() > 23 ? 23 : sjis.size()); j++)
           {
             Process::Write8(0x870DBBC + offset + j, sjis[j]);
           }
@@ -595,7 +589,7 @@ namespace CTRPluginFramework
         case 0:
           File::Create("YokaiEditor/nickname_" + out + ".bin");
           File::Open(file, "YokaiEditor/nickname_" + out + ".bin");
-          file.Dump(0x870DBBC + offset, 32);
+          file.Dump(0x870DBBC + offset, 24);
           file.Flush();
           file.Close();
           break;
@@ -651,7 +645,7 @@ namespace CTRPluginFramework
           }
           Keyboard file_select("select:", files_name);
           File::Open(file, "YokaiEditor/nickname_" + files_name[file_select.Open()] + ".bin");
-          file.Inject(0x870DBBC + offset, 32);
+          file.Inject(0x870DBBC + offset, 24);
           file.Close();
           break;
         }
@@ -736,6 +730,31 @@ namespace CTRPluginFramework
         default:
           break;
         }
+      }
+      else if (TouchRect(175, 95, 50, 25))
+      {
+        Sleep(Milliseconds(200));
+        s8 i = Keyboard(characters).Open();
+        if (i != -1)
+        {
+          Sleep(Milliseconds(200));
+          s8 j = Keyboard(characters2).Open();
+          Process::Play();
+          isOpened = false;
+          afterKeyboard = true;
+          if (j != -1)
+            Process::Write8(0x870DC08 + offset, i * 0x10 + j);
+        }
+      }
+      else if (TouchRect(230, 95, 50, 25))
+      {
+        Sleep(Milliseconds(200));
+        s8 i = Keyboard(poses).Open();
+        Process::Play();
+        isOpened = false;
+        afterKeyboard = true;
+        if (i != -1)
+          Process::Write8(0x870DC04 + offset,i);
       }
     }
     if (afterKeyboard)
@@ -921,6 +940,7 @@ namespace CTRPluginFramework
     if (!(files_name.size()))
     {
       MessageBox("no files found")();
+      Sleep(Milliseconds(500));
       return;
     }
     Keyboard key("select BMP:", files_name);
@@ -931,9 +951,11 @@ namespace CTRPluginFramework
       {
       case 0:
         AliceCodes::SetTopScreenBackground("BMP/" + files_name[i], false);
+        Sleep(Milliseconds(500));
         break;
       case 1:
         AliceCodes::SetBottomScreenBackground("BMP/" + files_name[i], false);
+        Sleep(Milliseconds(500));
         break;
       }
     }

@@ -236,6 +236,42 @@ namespace CTRPluginFramework
     }
   }
 
+  void DrawRectPlus(const Screen &scr, u32 posX, u32 posY, u32 width, u32 height, const Color &color, bool filled, int origin) {
+	if (origin == 0) { }
+	else if (origin == 1) {
+		posX = posX - (width / 2);
+	}
+	else if (origin == 2) {
+		posX = posX - width;
+	}
+	else if (origin == 3) {
+		posX = posX - width;
+		posY = posY - (height / 2);
+	}
+	else if (origin == 4) {
+		posX = posX - width;
+		posY = posY - height;
+	}
+	else if (origin == 5) {
+		posX = posX - (width / 2);
+		posY = posY - height;
+	}
+	else if (origin == 6) {
+		posY = posY - height;
+	}
+	else if (origin == 7) {
+		posY = posY - (height / 2);
+	}
+	else if (origin == 8) {
+		posX = posX - (width / 2);
+		posY = posY - (height / 2);
+	}
+
+	scr.DrawRect(posX, posY, width, height, color, filled);
+}
+
+
+
   struct SJIS_UTF16
   {
     u16 SJIS;
@@ -7614,7 +7650,6 @@ namespace CTRPluginFramework
 
   std::string Convert::hiraganaToKanji(std::string hiragana)
   {
-    OSD::Notify(Utils::Format("%d ", hiragana_kanji.size()));
     for (int i = 0; i < hiragana_kanji.size(); i++)
     {
       if (hiragana_kanji[i].hiragana == hiragana)

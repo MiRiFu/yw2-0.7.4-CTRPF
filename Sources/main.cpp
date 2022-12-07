@@ -303,7 +303,7 @@ namespace CTRPluginFramework
         }
         Convert::SetHiraganaKanji(hiragana, kanji);
       }
-      OSD::Notify("loaded kanji.txt");
+      OSD::Notify("kanji.txt loaded");
     }
     else
       OSD::Notify("kanji.txt not found.");
