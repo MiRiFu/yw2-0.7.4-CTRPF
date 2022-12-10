@@ -209,8 +209,7 @@ namespace CTRPluginFramework
   {
     return degree * (M_PI / 180);
   }
-
-  void DrawCircle(const Screen &scr, u32 x, u32 y, u32 radiusStart, u32 radiusEnd, int start, int end, const Color &color)
+  void DrawCircle(const Screen &scr, u32 x, u32 y, u32 radiusStart, u32 radiusEnd, int start, int end, const Color &color, int origin)
   {
     u32 rectLength = (radiusEnd * 2) / 1.41421356237;
     u32 miniRadius = rectLength / 2;
@@ -227,6 +226,46 @@ namespace CTRPluginFramework
       miniRadius = radiusStart;
     }
 
+    if (origin == 0)
+    {
+      x = x + radiusEnd;
+      y = y + radiusEnd;
+    }
+    else if (origin == 1)
+    {
+      y = y + radiusEnd;
+    }
+    else if (origin == 2)
+    {
+      x = x - radiusEnd;
+      y = y + radiusEnd;
+    }
+    else if (origin == 3)
+    {
+      x = x - radiusEnd;
+    }
+    else if (origin == 4)
+    {
+      x = x - radiusEnd;
+      y = y - radiusEnd;
+    }
+    else if (origin == 5)
+    {
+      y = y - radiusEnd;
+    }
+    else if (origin == 6)
+    {
+      x = x + radiusEnd;
+      y = y - radiusEnd;
+    }
+    else if (origin == 7)
+    {
+      x = x + radiusEnd;
+    }
+    else if (origin == 8)
+    {
+    }
+
     for (int r = miniRadius; r < radiusEnd; r++)
     {
       for (int angle = start; angle < end; angle++)
@@ -236,41 +275,50 @@ namespace CTRPluginFramework
     }
   }
 
-  void DrawRectPlus(const Screen &scr, u32 posX, u32 posY, u32 width, u32 height, const Color &color, bool filled, int origin) {
-	if (origin == 0) { }
-	else if (origin == 1) {
-		posX = posX - (width / 2);
-	}
-	else if (origin == 2) {
-		posX = posX - width;
-	}
-	else if (origin == 3) {
-		posX = posX - width;
-		posY = posY - (height / 2);
-	}
-	else if (origin == 4) {
-		posX = posX - width;
-		posY = posY - height;
-	}
-	else if (origin == 5) {
-		posX = posX - (width / 2);
-		posY = posY - height;
-	}
-	else if (origin == 6) {
-		posY = posY - height;
-	}
-	else if (origin == 7) {
-		posY = posY - (height / 2);
-	}
-	else if (origin == 8) {
-		posX = posX - (width / 2);
-		posY = posY - (height / 2);
-	}
+  void DrawRectPlus(const Screen &scr, u32 posX, u32 posY, u32 width, u32 height, const Color &color, bool filled, int origin)
+  {
+    if (origin == 0)
+    {
+    }
+    else if (origin == 1)
+    {
+      posX = posX - (width / 2);
+    }
+    else if (origin == 2)
+    {
+      posX = posX - width;
+    }
+    else if (origin == 3)
+    {
+      posX = posX - width;
+      posY = posY - (height / 2);
+    }
+    else if (origin == 4)
+    {
+      posX = posX - width;
+      posY = posY - height;
+    }
+    else if (origin == 5)
+    {
+      posX = posX - (width / 2);
+      posY = posY - height;
+    }
+    else if (origin == 6)
+    {
+      posY = posY - height;
+    }
+    else if (origin == 7)
+    {
+      posY = posY - (height / 2);
+    }
+    else if (origin == 8)
+    {
+      posX = posX - (width / 2);
+      posY = posY - (height / 2);
+    }
 
-	scr.DrawRect(posX, posY, width, height, color, filled);
-}
-
-
+    scr.DrawRect(posX, posY, width, height, color, filled);
+  }
 
   struct SJIS_UTF16
   {

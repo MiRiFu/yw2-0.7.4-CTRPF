@@ -165,94 +165,7 @@ namespace CTRPluginFramework
     scr.DrawSysfont(BatteryInfomation(), 321, 5, Color::White);
   }
 
-  // This patch the NFC disabling the touchscreen when scanning an amiibo, which prevents ctrpf to be used
-  static void ToggleTouchscreenForceOn(void)
-  {
-    static u32 original = 0;
-    static u32 *patchAddress = nullptr;
-
-    if (patchAddress && original)
-    {
-      *patchAddress = original;
-      return;
-    }
-
-    static const std::vector<u32> pattern =
-        {
-            0xE59F10C0, 0xE5840004, 0xE5841000, 0xE5DD0000,
-            0xE5C40008, 0xE28DD03C, 0xE8BD80F0, 0xE5D51001,
-            0xE1D400D4, 0xE3510003, 0x159F0034, 0x1A000003};
-
-    Result res;
-    Handle processHandle;
-    s64 textTotalSize = 0;
-    s64 startAddress = 0;
-    u32 *found;
-
-    if (R_FAILED(svcOpenProcess(&processHandle, 16)))
-      return;
-
-    svcGetProcessInfo(&textTotalSize, processHandle, 0x10002);
-    svcGetProcessInfo(&startAddress, processHandle, 0x10005);
-    if (R_FAILED(svcMapProcessMemoryEx(CUR_PROCESS_HANDLE, 0x14000000, processHandle, (u32)startAddress, textTotalSize)))
-      goto exit;
-
-    found = (u32 *)Utils::Search<u32>(0x14000000, (u32)textTotalSize, pattern);
-
-    if (found != nullptr)
-    {
-      original = found[13];
-      patchAddress = (u32 *)PA_FROM_VA((found + 13));
-      found[13] = 0xE1A00000;
-    }
-
-    svcUnmapProcessMemoryEx(CUR_PROCESS_HANDLE, 0x14000000, textTotalSize);
-  exit:
-    svcCloseHandle(processHandle);
-  }
-
-  // This function is called before main and before the game starts
-  // Useful to do code edits safely
-  void PatchProcess(FwkSettings &settings)
-  {
-    ToggleTouchscreenForceOn();
-    settings.AllowSearchEngine = true;
-  }
-
-  // This function is called when the process exits
-  // Useful to save settings, undo patchs or clean up things
-  void OnProcessExit(void)
-  {
-    ToggleTouchscreenForceOn();
-  }
-
-  void InitMenu(PluginMenu &menu)
-  {
-    //歯車 == nullptr
-
-    menu += new MenuEntry("Search", nullptr, Search);
-
-    MenuFolder *folder1 = new MenuFolder("other");
-    *folder1 += new MenuEntry("Cheat1", Cheat1);
-    *folder1 += new MenuEntry("Test1", nullptr, Test1);
-    *folder1 += new MenuEntry("pipes", Pipes, "startで消えます");
-    *folder1 += new MenuEntry("YokaiEditor", YokaiEditor, "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)");
-    *folder1 += new MenuEntry("Cube", Cube);
-    *folder1 += new MenuEntry("Bad Apple!!", BadApple, "止めるときはメニュー開き直してください");
-    *folder1 += new MenuEntry("JPNotify", JPNotify, "startで表示\n(Y押しながら押すんじゃないぞ！)");
-    *folder1 += new MenuEntry("ChangeBackGround", nullptr, ChangeBackGround, "BMPフォルダに画像を入れてください");
-    *folder1 += new MenuEntry("PlayMusic", nullptr, PlayMusic);
-    menu += folder1;
-  }
-
-  int main(void)
-  {
-    PluginMenu *menu = new PluginMenu("Action Replay", 0, 7, 4, "made by kani537");
-
-    OSD::Run(LoadGameTitle);
-    Sleep(Seconds(1));
-    OSD::Stop(LoadGameTitle);
-
+  void LoadKanji(void){
     if (File::Exists("kanji.txt"))
     {
       File file("kanji.txt");
@@ -307,6 +220,102 @@ namespace CTRPluginFramework
     }
     else
       OSD::Notify("kanji.txt not found.");
+  }
+
+  // This patch the NFC disabling the touchscreen when scanning an amiibo, which prevents ctrpf to be used
+  static void ToggleTouchscreenForceOn(void)
+  {
+    static u32 original = 0;
+    static u32 *patchAddress = nullptr;
+
+    if (patchAddress && original)
+    {
+      *patchAddress = original;
+      return;
+    }
+
+    static const std::vector<u32> pattern =
+        {
+            0xE59F10C0, 0xE5840004, 0xE5841000, 0xE5DD0000,
+            0xE5C40008, 0xE28DD03C, 0xE8BD80F0, 0xE5D51001,
+            0xE1D400D4, 0xE3510003, 0x159F0034, 0x1A000003};
+
+    Result res;
+    Handle processHandle;
+    s64 textTotalSize = 0;
+    s64 startAddress = 0;
+    u32 *found;
+
+    if (R_FAILED(svcOpenProcess(&processHandle, 16)))
+      return;
+
+    svcGetProcessInfo(&textTotalSize, processHandle, 0x10002);
+    svcGetProcessInfo(&startAddress, processHandle, 0x10005);
+    if (R_FAILED(svcMapProcessMemoryEx(CUR_PROCESS_HANDLE, 0x14000000, processHandle, (u32)startAddress, textTotalSize)))
+      goto exit;
+
+    found = (u32 *)Utils::Search<u32>(0x14000000, (u32)textTotalSize, pattern);
+
+    if (found != nullptr)
+    {
+      original = found[13];
+      patchAddress = (u32 *)PA_FROM_VA((found + 13));
+      found[13] = 0xE1A00000;
+    }
+
+    svcUnmapProcessMemoryEx(CUR_PROCESS_HANDLE, 0x14000000, textTotalSize);
+  exit:
+    svcCloseHandle(processHandle);
+  }
+
+  // This function is called before main and before the game starts
+  // Useful to do code edits safely
+  void PatchProcess(FwkSettings &settings)
+  {
+    ToggleTouchscreenForceOn();
+  }
+
+  // This function is called when the process exits
+  // Useful to save settings, undo patchs or clean up things
+  void OnProcessExit(void)
+  {
+    ToggleTouchscreenForceOn();
+  }
+
+  MenuEntry *EnabledEntry(MenuEntry *entry)
+  {
+    if (entry != nullptr)
+      entry->Enable();
+    return (entry);
+  }
+
+  void InitMenu(PluginMenu &menu)
+  {
+    menu += new MenuEntry("Search", nullptr, Search);
+
+    MenuFolder *folder1 = new MenuFolder("other");
+    menu += new MenuEntry("Cheat1", Cheat1);
+    menu += new MenuEntry("Test1", Test1);
+    *folder1 += new MenuEntry("pipes", Pipes, "startで消えます");
+    menu += new MenuEntry("YokaiEditor", YokaiEditor, "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)");
+    *folder1 += new MenuEntry("Cube", Cube);
+    *folder1 += new MenuEntry("Bad Apple!!", BadApple, "止めるときはメニュー開き直してください");
+    *folder1 += new MenuEntry("JPNotify", JPNotify, "startで表示\n(Y押しながら押すんじゃないぞ！)");
+    *folder1 += new MenuEntry("ChangeBackGround", nullptr, ChangeBackGround, "BMPフォルダに画像を入れてください");
+    *folder1 += new MenuEntry("PlayMusic", nullptr, PlayMusic);
+    menu += new MenuEntry("Indicator", Indicator);
+    menu += folder1;
+  }
+
+  int main(void)
+  {
+    PluginMenu *menu = new PluginMenu("Action Replay", 0, 7, 4, "made by kani537");
+
+    OSD::Run(LoadGameTitle);
+    Sleep(Seconds(1));
+    OSD::Stop(LoadGameTitle);
+
+    LoadKanji();
 
     menu->OnNewFrame = DrawCallBack;
     menu->SynchronizeWithFrame(true);
@@ -314,6 +323,22 @@ namespace CTRPluginFramework
 
     // Init our menu entries & folders
     InitMenu(*menu);
+
+    // std::vector<MenuFolder *> folders = menu->GetFolderList();
+    // for (auto folder : folders)
+    // {
+    //   if (folder->Name() == "other")
+    //   {
+    //     std::vector<MenuEntry *> entries = folder->GetEntryList();
+    //     for (auto entry : entries)
+    //     {
+    //       OSD::Notify(entry->Name());
+    //       if (entry->Name() == "Cheat1")
+    //         entry->Enable();
+    //     }
+    //   }
+    // }
+    
 
     // Launch menu and mainloop
     menu->Run();

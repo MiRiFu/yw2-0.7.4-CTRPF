@@ -262,7 +262,7 @@ namespace CTRPluginFramework
     }
     u8 level, leaderIndex, nickname[24], character, pose;
     u16 hp, power, magic, protect, speed;
-    u32 yokaiID, offset, kon1, kon2;
+    u32 yokaiID, offset, kon1, kon2, attackID, magicID, specialAttackID;
     std::string nickname_str, yokaiName;
     StringVector characters = {"超まじめで", "まじめで", "すなおで", "気ままで", "ずぼらで", "超ずぼらで", "ビビリで", "", "", "", "", "", "", "", "", ""};
     StringVector characters2 = {"", "短気", "れいせい", "しんちょう", "やさしい", "いやらしい", "協力的", "荒くれ", "ずのう的", "動じない", "情け深い", "非道", "けんしん的", "", "", ""};
@@ -297,6 +297,9 @@ namespace CTRPluginFramework
         Process::Read32(0x870DBB8 + offset, yokaiID);
         Process::Read32(0x870DBD4 + offset, kon1);
         Process::Read32(0x870DBD8 + offset, kon2);
+        Process::Read32(0x870DC2C + offset, attackID);
+        Process::Read32(0x870DC38 + offset, magicID);
+        Process::Read32(0x870DC5C + offset, specialAttackID);
         topScr.DrawRect(30, 20, 340, 200, Color::Black);
         btmScr.DrawRect(20, 20, 280, 200, Color::Black);
         topScr.DrawRect(32, 22, 336, 196, Color::White, false);
@@ -385,8 +388,8 @@ namespace CTRPluginFramework
         DrawSysfontPlus(btmScr, "すばやさ: ", 36, 195, 0, 0, Color::White, Color::Black, Color::Red, true);
         btmScr.DrawRect(120, 195, 50, 16, Color::White, true);
         DrawSysfontPlus(btmScr, Utils::Format("%d", speed), 170, 195, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
-        DrawCircle(btmScr, 210, 190, 0, 25, 0, 360, Color::Lime);
-        DrawCircle(btmScr, 265, 190, 0, 25, 0, 360, Color::Orange);
+        DrawCircle(btmScr, 210, 190, 0, 25, 0, 360, Color::Lime, 8);
+        DrawCircle(btmScr, 265, 190, 0, 25, 0, 360, Color::Orange, 8);
         DrawPlus(btmScr, "Save", 197, 187, 0, 0, Color::White, Color::Lime, Color::Red, 8);
         DrawPlus(btmScr, "Restore", 242, 187, 0, 0, Color::White, Color::Orange, Color::Red, 8);
         DrawRectPlus(btmScr, 175, 95, 50, 25, Color::White, true, 0);
@@ -460,13 +463,57 @@ namespace CTRPluginFramework
       else if (TouchRect(130, 68, 150, 19))
       {
         Sleep(Milliseconds(200));
-        u32 buff;
-        Keyboard key("妖怪ID:");
-        key.IsHexadecimal(true);
-        key.SetMaxLength(8);
-        if (key.Open(buff) != -1)
+        s8 ans = Keyboard("select", {"検索", "ID打ち込み"}).Open();
+        switch (ans)
         {
-          Process::Write32(0x870DBB8 + offset, buff);
+        case 0:
+        {
+          std::string out;
+          std::vector<u8> sjis;
+          japKey(out, sjis);
+          StringVector yokaiNames;
+          std::vector<u32> yokaiIDs;
+          for (int i = 0; i < 706; i++)
+          {
+            u32 ModelAddress = 0;
+            for (int y = 0; y < 602; y++)
+            {
+              if (*(u32 *)(0x08576868 + (i * 0x84)) == *(u32 *)(0x08570774 + (y * 0x28)))
+              {
+                ModelAddress = 0x08570774 + (y * 0x28);
+                break;
+              }
+            }
+            if (ModelAddress)
+            {
+              if (*(u32 *)(ModelAddress + 0x04) < 0x8000000)
+                continue;
+              if (ProcessPlus::ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04))).find(out) != std::string::npos)
+              {
+                yokaiNames.push_back(ProcessPlus::ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04))));
+                yokaiIDs.push_back((*(u32 *)(0x08576864 + (i * 0x84))));
+              }
+            }
+          }
+          ans = Keyboard("select", yokaiNames).Open();
+          if (ans != -1)
+          {
+            Process::Write32(0x870DBB8 + offset, yokaiIDs[ans]);
+          }
+          break;
+        }
+        case 1:
+        {
+          u32 buff;
+          Keyboard key("妖怪ID:");
+          key.IsHexadecimal(true);
+          key.SetMaxLength(8);
+          if (key.Open(buff) != -1)
+          {
+            Process::Write32(0x870DBB8 + offset, buff);
+          }
+        }
+        break;
         }
         Process::Play();
         isOpened = false;
@@ -754,7 +801,7 @@ namespace CTRPluginFramework
         isOpened = false;
         afterKeyboard = true;
         if (i != -1)
-          Process::Write8(0x870DC04 + offset,i);
+          Process::Write8(0x870DC04 + offset, i);
       }
     }
     if (afterKeyboard)
@@ -969,5 +1016,23 @@ namespace CTRPluginFramework
     // if (i == -1)
     //   return;
     Sound("sample.bcwav").Play();
+  }
+
+  void Indicator(MenuEntry *entry)
+  {
+    u16 max_health, health;
+    const Screen &topScr = OSD::GetTopScreen();
+    Process::Read16(0x087FB9C2, max_health);
+    Process::Read16(0x087FB9C4, health);
+    if (health)
+      DrawCircle(topScr, 333, 30, 0, 20, int(270 - (360 / (max_health * 1.0 / health * 1.0))), 270, Color::Red, 8);
+    Process::Read16(0x087FAFF2, max_health);
+    Process::Read16(0x087FAFF4, health);
+    if (health)
+      DrawCircle(topScr, 200, 30, 0, 20, int(270 - (360 / (max_health * 1.0 / health * 1.0))), 270, Color::Red, 8);
+    Process::Read16(0x087FB4DA, max_health);
+    Process::Read16(0x087FB4DC, health);
+    if (health)
+      DrawCircle(topScr, 66, 30, 0, 20, int(270 - (360 / (max_health * 1.0 / health * 1.0))), 270, Color::Red, 8);
   }
 }
