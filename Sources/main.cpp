@@ -291,11 +291,13 @@ namespace CTRPluginFramework
 
   void InitMenu(PluginMenu &menu)
   {
-    menu += new MenuEntry("Search", nullptr, Search);
+    MenuFolder *searchFolder = new MenuFolder("Search");
+    *searchFolder += new MenuEntry("Search", nullptr, Search);
+    menu += searchFolder;
 
     MenuFolder *folder1 = new MenuFolder("other");
     menu += new MenuEntry("Cheat1", Cheat1);
-    menu += new MenuEntry("Test1", Test1);
+    menu += new MenuEntry("Test1",nullptr, Test1);
     *folder1 += new MenuEntry("pipes", Pipes, "startで消えます");
     menu += new MenuEntry("YokaiEditor", YokaiEditor, "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)");
     *folder1 += new MenuEntry("Cube", Cube);
@@ -332,7 +334,6 @@ namespace CTRPluginFramework
     //     std::vector<MenuEntry *> entries = folder->GetEntryList();
     //     for (auto entry : entries)
     //     {
-    //       OSD::Notify(entry->Name());
     //       if (entry->Name() == "Cheat1")
     //         entry->Enable();
     //     }
@@ -342,7 +343,6 @@ namespace CTRPluginFramework
 
     // Launch menu and mainloop
     menu->Run();
-
     delete menu;
 
     // Exit plugin

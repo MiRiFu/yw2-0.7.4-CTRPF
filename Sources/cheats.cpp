@@ -208,13 +208,16 @@ namespace CTRPluginFramework
     }
   }
 
-  std::vector<std::vector<std::string>> MenuEntryNameList = {{"pipes", "ぱいぷす", "パイプス", "Pipes"}, {"yokaieditor", "ようかいえでぃたー", "ヨウカイエディター", "YokaiEditor"}, {"cube", "きゅーぶ", "キューブ", "Cube"}, {"bad apple!!", "ばっどあっぷる！！", "バッドアップル！！", "Bad Apple!!"}, {"jpnotify", "じぇーぴーにほんごのてぃふぁい", "ジェーピーニホンゴノティファイ", "JPNotify"}};
-  FuncPointer MenuEntryFuncList[] = {Pipes, YokaiEditor, Cube, BadApple, JPNotify};
+  std::vector<std::vector<std::string>> MenuEntryNameList = {{"pipes", "ぱいぷす", "パイプス", "Pipes"}, {"yokaieditor", "ようかいえでぃたー", "ヨウカイエディター", "YokaiEditor"}, {"cube", "きゅーぶ", "キューブ", "Cube"}, {"bad apple!!", "ばっどあっぷる！！", "バッドアップル！！", "Bad Apple!!"}, {"jpnotify", "じぇーぴーにほんごのてぃふぁい", "ジェーピーニホンゴノティファイ", "JPNotify"}, {"changebackground", "ちぇんじばっくぐらうんど", "チェンジバックグラウンド", "ChangeBackGround"}, {"playmusic", "ぷれいみゅーじっく", "プレイミュージック", "PlayMusic"},{"indicator","いんでぃけーたー","インディケーター","Indicator"}};
+  FuncPointer GameFuncList[] = {Pipes, YokaiEditor, Cube, BadApple, JPNotify, ChangeBackGround, PlayMusic,Indicator};
+  FuncPointer MenuFuncList[] = {nullptr, nullptr, nullptr, nullptr, nullptr,nullptr,nullptr,nullptr};
+  std::string NoteList[] = {"startで消えます", "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)", "", "止めるときはメニュー開き直してください", "startで表示\n(Y押しながら押すんじゃないぞ！)", "BMPフォルダに画像を入れてください","",""};
   void Search(MenuEntry *entry)
   {
     std::string input;
     std::vector<u8> entryNums;
     std::vector<u8> sjis;
+    PluginMenu *menu = PluginMenu::GetRunningInstance();
     japKey(input, sjis);
     if (input.empty())
       return;
@@ -232,21 +235,18 @@ namespace CTRPluginFramework
         }
       }
     }
-    std::vector<std::string> options;
-    for (int i = 0; i < entryNums.size(); i++)
+    std::vector<MenuFolder *> folders = menu->GetFolderList();
+    for (auto folder : folders)
     {
-      options.push_back(MenuEntryNameList[entryNums[i]][3]);
-    }
-    Keyboard key("which do you want:", options);
-    int choice = key.Open();
-    switch (choice)
-    {
-    case -1:
-      break;
-    default:
-      entry->Name() = MenuEntryNameList[entryNums[choice]][3] + "(search)";
-      entry->SetGameFunc(MenuEntryFuncList[entryNums[choice]]);
-      break;
+      if (folder->Name() == "Search")
+      {
+        folder->Clear();
+        *folder += new MenuEntry("Search", nullptr, Search);
+        for (int i = 0; i < entryNums.size(); i++)
+        {
+          *folder += new MenuEntry(MenuEntryNameList[entryNums[i]][3], GameFuncList[entryNums[i]], MenuFuncList[entryNums[i]], NoteList[entryNums[i]]);
+        }
+      }
     }
   }
 
