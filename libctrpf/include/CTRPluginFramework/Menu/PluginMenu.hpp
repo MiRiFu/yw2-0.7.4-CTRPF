@@ -16,7 +16,6 @@ namespace CTRPluginFramework
     {
         using CallbackPointer = void (*)(void);
         using OnOpeningCallback = bool (*)(void);
-        using OnClosingCallback = void (*)(void);
         using OnScreenshotCallback = bool (*)(void);
         using FrameCallback = void (*)(Time);
         using DecipherPointer = void(*)(std::string &, void *);
@@ -147,12 +146,6 @@ namespace CTRPluginFramework
 		 * to proceed with menu opening, return false otherwise.
          */
         OnOpeningCallback     OnOpening;
-
-        /**
-         * \brief If a callback is set, the callback will be called  - Must be set before calling Run
-         * Will be called when the menu is closed, before resuming game execution.
-         */
-        OnClosingCallback     OnClosing;
 
         /**
          * \brief The callback set will be called at each frame rendered while the menu is open

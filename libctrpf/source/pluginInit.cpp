@@ -513,7 +513,7 @@ namespace CTRPluginFramework
     void  ThreadExit(void)
     {
         // In which thread are we ?
-        if (reinterpret_cast<u32>(((Thread_tag*)threadGetCurrent())->stacktop) < 0x07000000)
+        if (reinterpret_cast<u32>(((CThread_tag*)threadGetCurrent())->stacktop) < 0x07000000)
         {
             // ## Main Thread ##
 
@@ -550,13 +550,12 @@ namespace CTRPluginFramework
     extern "C"
     int   __entrypoint(int arg)
     {
-        // Set ProcessImpl::MainThreadTls
-        ProcessImpl::MainThreadTls = (u32)getThreadLocalStorage();
-
         // Call early callback, with pointer to the 2 saved instructions
         if (EarlyCallback)
             EarlyCallback((u32*)arg);
 
+        // Set ProcessImpl::MainThreadTls
+        ProcessImpl::MainThreadTls = (u32)getThreadLocalStorage();
         // Set exception handlers
         ProcessImpl::EnableExceptionHandlers();
         // Check if we are on citra

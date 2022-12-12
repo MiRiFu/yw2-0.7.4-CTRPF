@@ -1010,12 +1010,16 @@ namespace CTRPluginFramework
 
   void PlayMusic(MenuEntry *entry)
   {
-    // StringVector files_name;
-    // Directory("MUSIC", true).ListFiles(files_name);
-    // s8 i = Keyboard("select file:", files_name).Open();
-    // if (i == -1)
-    //   return;
-    Sound("sample.bcwav").Play();
+    StringVector files_name;
+    Directory("MUSIC", true).ListFiles(files_name, ".bcwav");
+    if (!files_name.size())
+    {
+      MessageBox("no files found")();
+      return;
+    }
+    s8 i = Keyboard("select file:", files_name).Open();
+    if (i != -1)
+      Sound("MUSIC/" + files_name[i]).Play();
   }
 
   void Indicator(MenuEntry *entry)
@@ -1025,14 +1029,23 @@ namespace CTRPluginFramework
     Process::Read16(0x087FB9C2, max_health);
     Process::Read16(0x087FB9C4, health);
     if (health)
+    {
       DrawCircle(topScr, 333, 30, 0, 20, int(270 - (360 / (max_health * 1.0 / health * 1.0))), 270, Color::Red, 8);
+      topScr.DrawSysfont(Utils::Format("%d/%d", health, max_health), 300, 0);
+    }
     Process::Read16(0x087FAFF2, max_health);
     Process::Read16(0x087FAFF4, health);
     if (health)
+    {
       DrawCircle(topScr, 200, 30, 0, 20, int(270 - (360 / (max_health * 1.0 / health * 1.0))), 270, Color::Red, 8);
+      topScr.DrawSysfont(Utils::Format("%d/%d", health, max_health), 170, 0);
+    }
     Process::Read16(0x087FB4DA, max_health);
     Process::Read16(0x087FB4DC, health);
     if (health)
+    {
       DrawCircle(topScr, 66, 30, 0, 20, int(270 - (360 / (max_health * 1.0 / health * 1.0))), 270, Color::Red, 8);
+      topScr.DrawSysfont(Utils::Format("%d/%d", health, max_health), 30, 0);
+    }
   }
 }

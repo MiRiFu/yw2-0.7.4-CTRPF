@@ -26,6 +26,7 @@ namespace CTRPluginFramework
     static std::string hiraganaToKanji(std::string hiragana);
   };
 
+  void japKey(std::string &out, std::vector<u8> &sjis);
   bool TouchCircle(u32 x, u32 y, u8 size);
   bool TouchRect(u32 x, u32 y, u32 w, u32 h);
 }

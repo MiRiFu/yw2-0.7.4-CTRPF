@@ -21,7 +21,6 @@ namespace CTRPluginFramework
         using CallbackPointer = void (*)(void);
         using FuncPointer = void (*)(void);
 		using OnOpeningCallback = bool (*)(void);
-        using OnClosingCallback = void (*)(void);
         using FramePointer = void (*)(Time);
         using HotkeysVector = std::vector<Preferences::HotkeysInfos>;
     public:
@@ -65,7 +64,6 @@ namespace CTRPluginFramework
 
         FuncPointer			OnFirstOpening;
 		OnOpeningCallback	OnOpening;
-        OnClosingCallback	OnClosing;
         FramePointer		OnFrame;
         bool				SyncOnFrame;
     private:
