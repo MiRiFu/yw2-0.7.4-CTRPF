@@ -11,6 +11,27 @@ namespace CTRPluginFramework
   {
   }
 
+  bool flagShowScreenBuffer = false;
+  std::vector<std::vector<Color>> screenColor(400, std::vector<Color>(240, Color::Black));
+
+  bool ShowScreenBuffer(const Screen &screen)
+  {
+    if (!screen.IsTop)
+      return false;
+    for (int i = 0; i < 400; i++)
+    {
+      for (int j = 0; j < 240; j++)
+      {
+        if (screenColor[i][j] != Color::Black)
+        {
+          screen.DrawPixel(i, j, screenColor[i][j]);
+        }
+      }
+    }
+    if (!flagShowScreenBuffer)
+      return true;
+  }
+
   void JPNotify(MenuEntry *entry)
   {
     StringVector words = {"コ", "ン", "ニ", "チ", "ワ"};
@@ -67,11 +88,21 @@ namespace CTRPluginFramework
 
   u32 xPos = 150, yPos = 120;
   u8 direct = 3, temp_direct, buff_direct, i = 0, len, j;
-  Color screenColor[400][240];
   Color colorList[6] = {Color::Red, Color::Blue, Color::Cyan, Color::Green, Color::Yellow, Color::Orange};
   bool isReset = false;
   void Pipes(MenuEntry *entry)
   {
+    if (entry->WasJustActivated())
+    {
+      screenColor = std::vector<std::vector<Color>>(400, std::vector<Color>(240, Color::Black));
+      flagShowScreenBuffer = true;
+      OSD::Run(ShowScreenBuffer);
+    }
+    if (!entry->IsActivated())
+    {
+      flagShowScreenBuffer = false;
+      OSD::Stop(ShowScreenBuffer);
+    }
     const Screen &screen = OSD::GetTopScreen();
     if (isReset)
     {
@@ -120,56 +151,56 @@ namespace CTRPluginFramework
           if (j == 0)
           {
             if (buff_direct == 1)
-              screenColor[xPos + 2][yPos] = Color::White;
+              screenColor[xPos + 2][yPos] = Color::Black;
             else
-              screenColor[xPos - 2][yPos] = Color::White;
+              screenColor[xPos - 2][yPos] = Color::Black;
             yPos++;
             break;
           }
-          screenColor[xPos + 2][yPos] = Color::White;
-          screenColor[xPos - 2][yPos] = Color::White;
+          screenColor[xPos + 2][yPos] = Color::Black;
+          screenColor[xPos - 2][yPos] = Color::Black;
           yPos++;
           break;
         case 1:
           if (j == 0)
           {
             if (buff_direct == 0)
-              screenColor[xPos][yPos + 2] = Color::White;
+              screenColor[xPos][yPos + 2] = Color::Black;
             else
-              screenColor[xPos][yPos - 2] = Color::White;
+              screenColor[xPos][yPos - 2] = Color::Black;
             xPos++;
             break;
           }
-          screenColor[xPos][yPos + 2] = Color::White;
-          screenColor[xPos][yPos - 2] = Color::White;
+          screenColor[xPos][yPos + 2] = Color::Black;
+          screenColor[xPos][yPos - 2] = Color::Black;
           xPos++;
           break;
         case 2:
           if (j == 0)
           {
             if (buff_direct == 0)
-              screenColor[xPos][yPos + 2] = Color::White;
+              screenColor[xPos][yPos + 2] = Color::Black;
             else
-              screenColor[xPos][yPos - 2] = Color::White;
+              screenColor[xPos][yPos - 2] = Color::Black;
             xPos--;
             break;
           }
-          screenColor[xPos][yPos + 2] = Color::White;
-          screenColor[xPos][yPos - 2] = Color::White;
+          screenColor[xPos][yPos + 2] = Color::Black;
+          screenColor[xPos][yPos - 2] = Color::Black;
           xPos--;
           break;
         default:
           if (j == 0)
           {
             if (buff_direct == 1)
-              screenColor[xPos + 2][yPos] = Color::White;
+              screenColor[xPos + 2][yPos] = Color::Black;
             else
-              screenColor[xPos - 2][yPos] = Color::White;
+              screenColor[xPos - 2][yPos] = Color::Black;
             yPos--;
             break;
           }
-          screenColor[xPos + 2][yPos] = Color::White;
-          screenColor[xPos - 2][yPos] = Color::White;
+          screenColor[xPos + 2][yPos] = Color::Black;
+          screenColor[xPos - 2][yPos] = Color::Black;
           yPos--;
           break;
         }
@@ -189,29 +220,21 @@ namespace CTRPluginFramework
       buff_direct = direct;
       direct = temp_direct;
     }
-    for (u32 i = 0; i < 400; i++)
-    {
-      for (u32 j = 0; j < 240; j++)
-      {
-        if ((screenColor[i][j] != Color::White) && (screenColor[i][j] != 255))
-          screen.DrawPixel(i, j, screenColor[i][j]);
-      }
-    }
     if (Controller::IsKeyPressed(Key::Start))
     {
       isReset = true;
       for (int i = 0; i < 400; i++)
       {
         for (int j = 0; j < 240; j++)
-          screenColor[i][j] = Color::White;
+          screenColor[i][j] = Color::Black;
       }
     }
   }
 
-  std::vector<std::vector<std::string>> MenuEntryNameList = {{"pipes", "ぱいぷす", "パイプス", "Pipes"}, {"yokaieditor", "ようかいえでぃたー", "ヨウカイエディター", "YokaiEditor"}, {"cube", "きゅーぶ", "キューブ", "Cube"}, {"bad apple!!", "ばっどあっぷる！！", "バッドアップル！！", "Bad Apple!!"}, {"jpnotify", "じぇーぴーにほんごのてぃふぁい", "ジェーピーニホンゴノティファイ", "JPNotify"}, {"changebackground", "ちぇんじばっくぐらうんど", "チェンジバックグラウンド", "ChangeBackGround"}, {"playmusic", "ぷれいみゅーじっく", "プレイミュージック", "PlayMusic"},{"indicator","いんでぃけーたー","インディケーター","Indicator"}};
-  FuncPointer GameFuncList[] = {Pipes, YokaiEditor, Cube, BadApple, JPNotify, ChangeBackGround, PlayMusic,Indicator};
-  FuncPointer MenuFuncList[] = {nullptr, nullptr, nullptr, nullptr, nullptr,nullptr,nullptr,nullptr};
-  std::string NoteList[] = {"startで消えます", "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)", "", "止めるときはメニュー開き直してください", "startで表示\n(Y押しながら押すんじゃないぞ！)", "BMPフォルダに画像を入れてください","",""};
+  std::vector<std::vector<std::string>> MenuEntryNameList = {{"pipes", "ぱいぷす", "パイプス", "Pipes"}, {"yokaieditor", "ようかいえでぃたー", "ヨウカイエディター", "YokaiEditor"}, {"cube", "きゅーぶ", "キューブ", "Cube"}, {"bad apple!!", "ばっどあっぷる！！", "バッドアップル！！", "Bad Apple!!"}, {"jpnotify", "じぇーぴーにほんごのてぃふぁい", "ジェーピーニホンゴノティファイ", "JPNotify"}, {"changebackground", "ちぇんじばっくぐらうんど", "チェンジバックグラウンド", "ChangeBackGround"}, {"playmusic", "ぷれいみゅーじっく", "プレイミュージック", "PlayMusic"}, {"indicator", "いんでぃけーたー", "インディケーター", "Indicator"}};
+  FuncPointer GameFuncList[] = {Pipes, YokaiEditor, Cube, BadApple, JPNotify, ChangeBackGround, PlayMusic, Indicator};
+  FuncPointer MenuFuncList[] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+  std::string NoteList[] = {"startで消えます", "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)", "", "止めるときはメニュー開き直してください", "startで表示\n(Y押しながら押すんじゃないぞ！)", "BMPフォルダに画像を入れてください", "", ""};
   void Search(MenuEntry *entry)
   {
     std::string input;
@@ -888,13 +911,7 @@ namespace CTRPluginFramework
         calculateForSurface(cubeX, cubeWidth, cubeY, '+');
       }
     }
-    for (int i = 0; i < 400; i++)
-    {
-      for (int j = 0; j < 240; j++)
-      {
-        screenColor[i][j] = Color::Black;
-      }
-    }
+    screenColor = std::vector<std::vector<Color>>(400, std::vector<Color>(240, Color::Black));
     for (int k = 0; k < width * height; k++)
     {
       switch (buffer[k])
@@ -923,17 +940,17 @@ namespace CTRPluginFramework
 
   void Cube(MenuEntry *entry)
   {
-    const Screen &screen = OSD::GetTopScreen();
-    for (int i = 0; i < 400; i++)
+    if (entry->WasJustActivated())
     {
-      for (int j = 0; j < 240; j++)
-      {
-        if (screenColor[i][j] != Color::Black)
-        {
-          screen.DrawPixel(i, j, screenColor[i][j]);
-        }
-      }
+      flagShowScreenBuffer = true;
+      OSD::Run(ShowScreenBuffer);
     }
+    if (!entry->IsActivated())
+    {
+      flagShowScreenBuffer = false;
+      OSD::Stop(ShowScreenBuffer);
+    }
+    rotateCube();
     if (Controller::IsKeyDown(Key::CPadLeft))
       BB -= 0.05;
     if (Controller::IsKeyDown(Key::CPadRight))
@@ -950,7 +967,6 @@ namespace CTRPluginFramework
       distanceFromCam -= 5;
     if (Controller::IsKeyDown(Key::CStickRight))
       distanceFromCam += 5;
-    Sleep(Milliseconds(300));
   }
 
   int frame_num = 0;
