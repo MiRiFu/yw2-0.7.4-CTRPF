@@ -1034,8 +1034,30 @@ namespace CTRPluginFramework
       return;
     }
     s8 i = Keyboard("select file:", files_name).Open();
-    if (i != -1)
-      Sound("MUSIC/" + files_name[i]).Play();
+    if (i != -1){
+      File cwavFile("MUSIC/" + files_name[i], File::READ);
+      if (!cwavFile.IsOpen())
+      {
+        return;
+      }
+      u64 fileSize = cwavFile.GetSize();
+      for(int i =0;i > fileSize/0xFFF;i++){
+        void *dataBuffer = static_cast<void *>(::operator new(0xFFF, std::nothrow));
+        if (dataBuffer == nullptr)
+        {
+          return;
+        }
+        cwavFile.Read(dataBuffer, 0xFFF);
+        Sound((u8 *)dataBuffer).Play();
+      }
+        void *dataBuffer = static_cast<void *>(::operator new(fileSize%0xFFF, std::nothrow));
+        if (dataBuffer == nullptr)
+        {
+          return;
+        }
+        cwavFile.Read(dataBuffer, fileSize%0xFFF);
+        Sound((u8 *)dataBuffer).Play();
+    }
   }
 
   void Indicator(MenuEntry *entry)
