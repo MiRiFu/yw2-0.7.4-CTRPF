@@ -1041,16 +1041,22 @@ namespace CTRPluginFramework
         return;
       }
       u64 fileSize = cwavFile.GetSize();
-      for(int i =0;i > fileSize/0xFFF+1;i++){
-        void *dataBuffer = static_cast<void *>(::operator new(fileSize, std::nothrow));
+      for(int i =0;i > fileSize/0xFFF;i++){
+        void *dataBuffer = static_cast<void *>(::operator new(0xFFF, std::nothrow));
         if (dataBuffer == nullptr)
         {
           return;
         }
-        // cwavFile.Seek(0xFFF*i);
         cwavFile.Read(dataBuffer, 0xFFF);
         Sound((u8 *)dataBuffer).Play();
       }
+        void *dataBuffer = static_cast<void *>(::operator new(fileSize%0xFFF, std::nothrow));
+        if (dataBuffer == nullptr)
+        {
+          return;
+        }
+        cwavFile.Read(dataBuffer, fileSize%0xFFF);
+        Sound((u8 *)dataBuffer).Play();
     }
   }
 
