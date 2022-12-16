@@ -1,7 +1,9 @@
 #include "cheats.hpp"
 #include "osdjp.hpp"
 #include "AliceCodes.hpp"
+#include "csvc.h"
 #include "KaniCodes.hpp"
+#include "memory.h"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/System/ProcessImpl.hpp"
 #include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 
@@ -241,7 +243,7 @@ namespace CTRPluginFramework
     std::vector<u8> entryNums;
     std::vector<u8> sjis;
     PluginMenu *menu = PluginMenu::GetRunningInstance();
-    japKey(input, sjis);
+    japKey(input, &sjis);
     if (input.empty())
       return;
     std::transform(input.begin(), input.end(), input.begin(), [](unsigned char c)
@@ -466,7 +468,7 @@ namespace CTRPluginFramework
           }
           break;
         case 1:
-          japKey(out, sjis);
+          japKey(out, &sjis);
           for (int j = 0; j < 24; j++)
           {
             Process::Write8(0x870DBBC + offset + j, 0x00);
@@ -493,7 +495,7 @@ namespace CTRPluginFramework
         {
           std::string out;
           std::vector<u8> sjis;
-          japKey(out, sjis);
+          japKey(out, &sjis);
           StringVector yokaiNames;
           std::vector<u32> yokaiIDs;
           for (int i = 0; i < 706; i++)
@@ -1034,29 +1036,17 @@ namespace CTRPluginFramework
       return;
     }
     s8 i = Keyboard("select file:", files_name).Open();
-    if (i != -1){
-      File cwavFile("MUSIC/" + files_name[i], File::READ);
-      if (!cwavFile.IsOpen())
-      {
-        return;
-      }
-      u64 fileSize = cwavFile.GetSize();
-      for(int i =0;i > fileSize/0xFFF;i++){
-        void *dataBuffer = static_cast<void *>(::operator new(0xFFF, std::nothrow));
-        if (dataBuffer == nullptr)
-        {
-          return;
-        }
-        cwavFile.Read(dataBuffer, 0xFFF);
-        Sound((u8 *)dataBuffer).Play();
-      }
-        void *dataBuffer = static_cast<void *>(::operator new(fileSize%0xFFF, std::nothrow));
-        if (dataBuffer == nullptr)
-        {
-          return;
-        }
-        cwavFile.Read(dataBuffer, fileSize%0xFFF);
-        Sound((u8 *)dataBuffer).Play();
+    if (i != -1)
+    {
+      u32 temp;
+      File fp("MUSIC/" + files_name[i], File::RW);
+      u32 *addrs = (u32 *)mappableAlloc(fp.GetSize());
+      Result res = svcControlMemoryEx(&temp, (u32)addrs, 0, fp.GetSize(), MEMOP_ALLOC, (MemPerm)(MEMPERM_READ | MEMPERM_WRITE), true);
+      fp.Inject((u32)addrs, fp.GetSize());
+      Sleep(Seconds(1));
+      Sound((u8 *)&addrs).Play();
+      MessageBox(Utils::Format("memory error%08X %08X", (u32)addrs,temp))();
+      fp.Close();
     }
   }
 

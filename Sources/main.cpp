@@ -5,8 +5,6 @@
 #include "KaniCodes.hpp"
 #include <ctime>
 
-#include <vector>
-
 namespace CTRPluginFramework
 {
   static MenuEntry *TopSeparator(MenuEntry *entry)
@@ -317,6 +315,17 @@ namespace CTRPluginFramework
     Sleep(Seconds(1));
     OSD::Stop(LoadGameTitle);
 
+    u64 hash;
+    CFGU_GenHashConsoleUnique(0,&hash);
+    
+
+    // std::string out;
+    // std::vector<u8> sjis;
+
+    // std::string answer = "aaa";
+
+    // japKey(out);
+
     LoadKanji();
 
     menu->OnNewFrame = DrawCallBack;
@@ -324,6 +333,7 @@ namespace CTRPluginFramework
     menu->ShowWelcomeMessage(false);
 
     // Init our menu entries & folders
+    
     InitMenu(*menu);
 
     // std::vector<MenuFolder *> folders = menu->GetFolderList();

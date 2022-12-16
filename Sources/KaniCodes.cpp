@@ -705,14 +705,14 @@ namespace CTRPluginFramework
     }
   }
 
-  void japKey(std::string &out, std::vector<u8> &sjis)
+  void japKey(std::string &out, std::vector<u8> *sjis)
   {
     if (!Process::IsPaused())
       return;
 
     InputChrs.clear();
     InputStr.clear();
-    sjis.clear();
+    (*sjis).clear();
 
     const Screen &scr = OSD::GetBottomScreen();
 
@@ -721,7 +721,7 @@ namespace CTRPluginFramework
     while (KeyboardOpened)
     {
       Controller::Update();
-      DrawKeyboard(scr, out, sjis);
+      DrawKeyboard(scr, out, *sjis);
       OSD::SwapBuffers();
     }
   }
