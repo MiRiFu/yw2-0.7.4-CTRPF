@@ -241,9 +241,8 @@ namespace CTRPluginFramework
   {
     std::string input;
     std::vector<u8> entryNums;
-    std::vector<u8> sjis;
     PluginMenu *menu = PluginMenu::GetRunningInstance();
-    japKey(input, &sjis);
+    japKey(input, "エントリー名を入力してください");
     if (input.empty())
       return;
     std::transform(input.begin(), input.end(), input.begin(), [](unsigned char c)
@@ -468,7 +467,7 @@ namespace CTRPluginFramework
           }
           break;
         case 1:
-          japKey(out, &sjis);
+          japKey(out, "妖怪の名前を入れてください", &sjis);
           for (int j = 0; j < 24; j++)
           {
             Process::Write8(0x870DBBC + offset + j, 0x00);
@@ -494,8 +493,7 @@ namespace CTRPluginFramework
         case 0:
         {
           std::string out;
-          std::vector<u8> sjis;
-          japKey(out, &sjis);
+          japKey(out, "妖怪の名前を入れてください");
           StringVector yokaiNames;
           std::vector<u32> yokaiIDs;
           for (int i = 0; i < 706; i++)
@@ -1045,7 +1043,7 @@ namespace CTRPluginFramework
       fp.Inject((u32)addrs, fp.GetSize());
       Sleep(Seconds(1));
       Sound((u8 *)&addrs).Play();
-      MessageBox(Utils::Format("memory error%08X %08X", (u32)addrs,temp))();
+      MessageBox(Utils::Format("memory error%08X %08X", (u32)addrs, temp))();
       fp.Close();
     }
   }

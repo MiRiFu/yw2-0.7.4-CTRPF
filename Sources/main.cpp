@@ -320,11 +320,10 @@ namespace CTRPluginFramework
     
 
     // std::string out;
-    // std::vector<u8> sjis;
-
     // std::string answer = "aaa";
-
-    // japKey(out);
+    // Process::Pause();
+    // japKey(out,"こんにちわ");
+    // Process::Play();
 
     LoadKanji();
 

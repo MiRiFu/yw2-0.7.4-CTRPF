@@ -705,7 +705,7 @@ namespace CTRPluginFramework
     }
   }
 
-  void japKey(std::string &out, std::vector<u8> *sjis)
+  void japKey(std::string &out, std::string text, std::vector<u8> *sjis)
   {
     if (!Process::IsPaused())
       return;
@@ -714,14 +714,18 @@ namespace CTRPluginFramework
     InputStr.clear();
     (*sjis).clear();
 
-    const Screen &scr = OSD::GetBottomScreen();
+    const Screen &topScr = OSD::GetTopScreen();
+    const Screen &btmScr = OSD::GetBottomScreen();
 
     KeyboardOpened = true;
     KatakanaMode = false;
     while (KeyboardOpened)
     {
+      topScr.DrawRect(30, 20, 340, 200, Color::Black);
+      topScr.DrawRect(32, 22, 336, 196, Color::White, false);
+      topScr.DrawSysfont(text, 35, 25);
       Controller::Update();
-      DrawKeyboard(scr, out, *sjis);
+      DrawKeyboard(btmScr, out, *sjis);
       OSD::SwapBuffers();
     }
   }
