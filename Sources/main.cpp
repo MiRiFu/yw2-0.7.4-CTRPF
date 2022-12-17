@@ -258,10 +258,10 @@ namespace CTRPluginFramework
             return false;
           }
         }
+        file.Rewind();
         for (int i = 0; i < answer_length; i++)
         {
           buff = answer[i] + diff[i] + hash;
-          file.Rewind();
           file.Write((void *)&buff, sizeof(u16));
         }
         file.Close();
