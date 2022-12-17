@@ -991,7 +991,7 @@ namespace CTRPluginFramework
         index++;
       }
     }
-    Sleep(Milliseconds(50));
+    Sleep(Milliseconds(100));
     frame_num++;
     OSD::SwapBuffers();
   }

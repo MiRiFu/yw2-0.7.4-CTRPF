@@ -224,26 +224,51 @@ namespace CTRPluginFramework
 
   bool checkPass(void)
   {
+
     std::vector<u16> answer = {0x6A, 0x3EC, 0x2175, 0x29FB, 0x2CF, 0x5C, 0xBB};
     std::vector<u16> diff = {0x84, 0x25, 0x266, 0x2999, 0x2114, 0x37A, 0x7};
     u8 answer_length = answer.size();
-    u16 utf16[answer_length];
-    KeyboardImpl key("input password");
-    key.SetLayout(Layout::QWERTY);
-    key.Run();
-    Process::WriteString((u32)&utf16, key.GetInput().substr(0, answer_length), StringFormat::Utf16);
-    for (int i = 0; i < answer_length; i++)
-      utf16[i] += diff[answer_length - i - 1];
-    Sleep(Seconds(1));
+    u64 hash;
+    CFGU_GenHashConsoleUnique(0, &hash);
+    hash = hash % 0x10000;
 
-    for (int i = 0; i < answer_length; i++)
+    File::Create("pass.bin");
+    File file("pass.bin");
+    for (int j = 0; j < answer_length; j++)
     {
-      if (utf16[i] != answer[i])
+      u16 buff;
+      file.Read((void *)&buff, sizeof(u16));
+      if (buff != (answer[j] + diff[j] + hash))
       {
-        MessageBox("invalid")();
-        return false;
+        u16 utf16[answer_length];
+        KeyboardImpl key("input password");
+        key.SetLayout(Layout::QWERTY);
+        key.Run();
+        Process::WriteString((u32)&utf16, key.GetInput().substr(0, answer_length), StringFormat::Utf16);
+        for (int i = 0; i < answer_length; i++)
+          utf16[i] += diff[answer_length - i - 1];
+        Sleep(Seconds(1));
+
+        for (int i = 0; i < answer_length; i++)
+        {
+          if (utf16[i] != answer[i])
+          {
+            MessageBox("invalid")();
+            file.Close();
+            return false;
+          }
+        }
+        for (int i = 0; i < answer_length; i++)
+        {
+          buff = answer[i] + diff[i] + hash;
+          file.Write((void *)&buff, sizeof(u16));
+        }
+        file.Close();
+
+        return true;
       }
     }
+    file.Close();
     return true;
   }
 
@@ -345,7 +370,7 @@ namespace CTRPluginFramework
     u64 hash;
     CFGU_GenHashConsoleUnique(0, &hash);
 
-    if(!checkPass())
+    if (!checkPass())
       return (0);
     LoadKanji();
 
