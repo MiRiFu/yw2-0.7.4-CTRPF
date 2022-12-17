@@ -3,6 +3,7 @@
 #include <CTRPluginFramework.hpp>
 #include "cheats.hpp"
 #include "KaniCodes.hpp"
+#include "CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 #include <ctime>
 
 namespace CTRPluginFramework
@@ -163,7 +164,8 @@ namespace CTRPluginFramework
     scr.DrawSysfont(BatteryInfomation(), 321, 5, Color::White);
   }
 
-  void LoadKanji(void){
+  void LoadKanji(void)
+  {
     if (File::Exists("kanji.txt"))
     {
       File file("kanji.txt");
@@ -218,6 +220,31 @@ namespace CTRPluginFramework
     }
     else
       OSD::Notify("kanji.txt not found.");
+  }
+
+  bool checkPass(void)
+  {
+    std::vector<u16> answer = {0x6A, 0x3EC, 0x2175, 0x29FB, 0x2CF, 0x5C, 0xBB};
+    std::vector<u16> diff = {0x84, 0x25, 0x266, 0x2999, 0x2114, 0x37A, 0x7};
+    u8 answer_length = answer.size();
+    u16 utf16[answer_length];
+    KeyboardImpl key("input password");
+    key.SetLayout(Layout::QWERTY);
+    key.Run();
+    Process::WriteString((u32)&utf16, key.GetInput().substr(0, answer_length), StringFormat::Utf16);
+    for (int i = 0; i < answer_length; i++)
+      utf16[i] += diff[answer_length - i - 1];
+    Sleep(Seconds(1));
+
+    for (int i = 0; i < answer_length; i++)
+    {
+      if (utf16[i] != answer[i])
+      {
+        MessageBox("invalid")();
+        return false;
+      }
+    }
+    return true;
   }
 
   // This patch the NFC disabling the touchscreen when scanning an amiibo, which prevents ctrpf to be used
@@ -295,7 +322,7 @@ namespace CTRPluginFramework
 
     MenuFolder *folder1 = new MenuFolder("other");
     menu += new MenuEntry("Cheat1", Cheat1);
-    menu += new MenuEntry("Test1",nullptr, Test1);
+    menu += new MenuEntry("Test1", nullptr, Test1);
     *folder1 += new MenuEntry("pipes", Pipes, "startで消えます");
     menu += new MenuEntry("YokaiEditor", YokaiEditor, "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)");
     *folder1 += new MenuEntry("Cube", Cube);
@@ -316,15 +343,10 @@ namespace CTRPluginFramework
     OSD::Stop(LoadGameTitle);
 
     u64 hash;
-    CFGU_GenHashConsoleUnique(0,&hash);
-    
+    CFGU_GenHashConsoleUnique(0, &hash);
 
-    // std::string out;
-    // std::string answer = "aaa";
-    // Process::Pause();
-    // japKey(out,"こんにちわ");
-    // Process::Play();
-
+    if(!checkPass())
+      return (0);
     LoadKanji();
 
     menu->OnNewFrame = DrawCallBack;
@@ -332,7 +354,6 @@ namespace CTRPluginFramework
     menu->ShowWelcomeMessage(false);
 
     // Init our menu entries & folders
-    
     InitMenu(*menu);
 
     // std::vector<MenuFolder *> folders = menu->GetFolderList();
@@ -348,7 +369,6 @@ namespace CTRPluginFramework
     //     }
     //   }
     // }
-    
 
     // Launch menu and mainloop
     menu->Run();
