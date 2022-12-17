@@ -261,6 +261,7 @@ namespace CTRPluginFramework
         for (int i = 0; i < answer_length; i++)
         {
           buff = answer[i] + diff[i] + hash;
+          file.Rewind();
           file.Write((void *)&buff, sizeof(u16));
         }
         file.Close();
@@ -372,6 +373,7 @@ namespace CTRPluginFramework
 
     if (!checkPass())
       return (0);
+    OSD::Notify("Authentication Success");
     LoadKanji();
 
     menu->OnNewFrame = DrawCallBack;
