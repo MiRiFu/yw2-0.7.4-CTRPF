@@ -236,7 +236,7 @@ namespace CTRPluginFramework
   std::vector<std::vector<std::string>> MenuEntryNameList = {{"pipes", "ぱいぷす", "パイプス", "Pipes"}, {"yokaieditor", "ようかいえでぃたー", "ヨウカイエディター", "YokaiEditor"}, {"cube", "きゅーぶ", "キューブ", "Cube"}, {"bad apple!!", "ばっどあっぷる！！", "バッドアップル！！", "Bad Apple!!"}, {"jpnotify", "じぇーぴーにほんごのてぃふぁい", "ジェーピーニホンゴノティファイ", "JPNotify"}, {"changebackground", "ちぇんじばっくぐらうんど", "チェンジバックグラウンド", "ChangeBackGround"}, {"playmusic", "ぷれいみゅーじっく", "プレイミュージック", "PlayMusic"}, {"indicator", "いんでぃけーたー", "インディケーター", "Indicator"}};
   FuncPointer GameFuncList[] = {Pipes, YokaiEditor, Cube, BadApple, JPNotify, nullptr, nullptr, Indicator};
   FuncPointer MenuFuncList[] = {nullptr, nullptr, nullptr, nullptr, nullptr, ChangeBackGround, PlayMusic, nullptr};
-  std::string NoteList[] = {"startで消えます", "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)", "", nullptr, "startで表示\n(Y押しながら押すんじゃないぞ！)", "BMPフォルダに画像を入れてください", "", ""};
+  std::string NoteList[] = {"startで消えます", "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)", "", "", "startで表示\n(Y押しながら押すんじゃないぞ！)", "BMPフォルダに画像を入れてください", "", ""};
   void Search(MenuEntry *entry)
   {
     std::string input;
