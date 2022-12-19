@@ -4,6 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/Includes",
                 "/opt/devkitpro/libctru/include",
                 "${workspaceFolder}/libctrpf/**",
                 "${workspaceFolder}/libctrpf/include/CTRPluginFramework",

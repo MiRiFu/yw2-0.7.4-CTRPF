@@ -236,7 +236,7 @@ namespace CTRPluginFramework
   std::vector<std::vector<std::string>> MenuEntryNameList = {{"pipes", "ぱいぷす", "パイプス", "Pipes"}, {"yokaieditor", "ようかいえでぃたー", "ヨウカイエディター", "YokaiEditor"}, {"cube", "きゅーぶ", "キューブ", "Cube"}, {"bad apple!!", "ばっどあっぷる！！", "バッドアップル！！", "Bad Apple!!"}, {"jpnotify", "じぇーぴーにほんごのてぃふぁい", "ジェーピーニホンゴノティファイ", "JPNotify"}, {"changebackground", "ちぇんじばっくぐらうんど", "チェンジバックグラウンド", "ChangeBackGround"}, {"playmusic", "ぷれいみゅーじっく", "プレイミュージック", "PlayMusic"}, {"indicator", "いんでぃけーたー", "インディケーター", "Indicator"}};
   FuncPointer GameFuncList[] = {Pipes, YokaiEditor, Cube, BadApple, JPNotify, nullptr, nullptr, Indicator};
   FuncPointer MenuFuncList[] = {nullptr, nullptr, nullptr, nullptr, nullptr, ChangeBackGround, PlayMusic, nullptr};
-  std::string NoteList[] = {"startで消えます", "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)", "", "止めるときはメニュー開き直してください", "startで表示\n(Y押しながら押すんじゃないぞ！)", "BMPフォルダに画像を入れてください", "", ""};
+  std::string NoteList[] = {"startで消えます", "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)", "", nullptr, "startで表示\n(Y押しながら押すんじゃないぞ！)", "BMPフォルダに画像を入れてください", "", ""};
   void Search(MenuEntry *entry)
   {
     std::string input;
@@ -274,11 +274,10 @@ namespace CTRPluginFramework
     }
   }
 
-  bool isOpened, afterKeyboard;
-  u8 afterKeyboardSec;
+  bool isOpened = false;
   void YokaiEditor(MenuEntry *entry)
   {
-    if ((*(u32 *)0x858088) == 0)
+    if (((*(u32 *)0x858088) == 0) && (!System::IsCitra()))
     {
       if (Controller::IsKeyPressed(Key::Start))
         OSD::Notify("open with any medal selected");
@@ -297,142 +296,137 @@ namespace CTRPluginFramework
     Process::Write8(0x870DC05 + offset, 0xAF);
     const Screen &topScr = OSD::GetTopScreen();
     const Screen &btmScr = OSD::GetBottomScreen();
-    if ((Controller::IsKeyPressed(Key::Start)) || (afterKeyboardSec > 2))
+    if (isOpened)
     {
-      if ((isOpened) && (afterKeyboardSec < 2))
+      Process::Read8(0x870DC03 + offset, level);
+      Process::Read8(0x870DC04 + offset, pose);
+      Process::Read8(0x870DC08 + offset, character);
+      for (int i = 0; i < 24; i++)
       {
-        Process::Play();
-        isOpened = false;
+        Process::Read8(0x870DBBC + offset + i, nickname[i]);
       }
-      else
+      Process::Read16(0x870DBEC + offset, hp);
+      Process::Read16(0x870DC16 + offset, power);
+      Process::Read16(0x870DC18 + offset, magic);
+      Process::Read16(0x870DC1A + offset, protect);
+      Process::Read16(0x870DC1C + offset, speed);
+      Process::Read32(0x870DBB8 + offset, yokaiID);
+      Process::Read32(0x870DBD4 + offset, kon1);
+      Process::Read32(0x870DBD8 + offset, kon2);
+      Process::Read32(0x870DC2C + offset, attackID);
+      Process::Read32(0x870DC38 + offset, magicID);
+      Process::Read32(0x870DC5C + offset, specialAttackID);
+      topScr.DrawRect(30, 20, 340, 200, Color::Black);
+      btmScr.DrawRect(20, 20, 280, 200, Color::Black);
+      topScr.DrawRect(32, 22, 336, 196, Color::White, false);
+      btmScr.DrawRect(22, 22, 276, 196, Color::White, false);
+      btmScr.DrawRect(275, 30, 15, 15, Color::Red, false);
+      DrawLine(btmScr, 278, 33, 287, 43, Color::Red);
+      DrawLine(btmScr, 287, 33, 278, 43, Color::Red);
+      for (int i = 0; i < 22;)
       {
-        Process::Read8(0x870DC03 + offset, level);
-        Process::Read8(0x870DC04 + offset, pose);
-        Process::Read8(0x870DC08 + offset, character);
-        for (int i = 0; i < 24; i++)
+        std::string buff_str;
+        u16 buff;
+        if (nickname[i] == 0)
+          break;
+        else if ((nickname[i] < 0x80) || (nickname[i] > 0xA0))
         {
-          Process::Read8(0x870DBBC + offset + i, nickname[i]);
+          buff = Convert::sjisToUtf16(nickname[i]);
+          Utils::ConvertUTF16ToUTF8(buff_str, &buff);
+          nickname_str += buff_str.substr(0, 1);
+          i++;
         }
-        Process::Read16(0x870DBEC + offset, hp);
-        Process::Read16(0x870DC16 + offset, power);
-        Process::Read16(0x870DC18 + offset, magic);
-        Process::Read16(0x870DC1A + offset, protect);
-        Process::Read16(0x870DC1C + offset, speed);
-        Process::Read32(0x870DBB8 + offset, yokaiID);
-        Process::Read32(0x870DBD4 + offset, kon1);
-        Process::Read32(0x870DBD8 + offset, kon2);
-        Process::Read32(0x870DC2C + offset, attackID);
-        Process::Read32(0x870DC38 + offset, magicID);
-        Process::Read32(0x870DC5C + offset, specialAttackID);
-        topScr.DrawRect(30, 20, 340, 200, Color::Black);
-        btmScr.DrawRect(20, 20, 280, 200, Color::Black);
-        topScr.DrawRect(32, 22, 336, 196, Color::White, false);
-        btmScr.DrawRect(22, 22, 276, 196, Color::White, false);
-        btmScr.DrawRect(275, 30, 15, 15, Color::Red, false);
-        DrawLine(btmScr, 278, 33, 287, 43, Color::Red);
-        DrawLine(btmScr, 287, 33, 278, 43, Color::Red);
-        for (int i = 0; i < 22;)
+        else
         {
-          std::string buff_str;
-          u16 buff;
-          if (nickname[i] == 0)
-            break;
-          else if ((nickname[i] < 0x80) || (nickname[i] > 0xA0))
-          {
-            buff = Convert::sjisToUtf16(nickname[i]);
-            Utils::ConvertUTF16ToUTF8(buff_str, &buff);
-            nickname_str += buff_str.substr(0, 1);
-            i++;
-          }
-          else
-          {
-            buff = Convert::sjisToUtf16(nickname[i] * 0x100 + nickname[i + 1]);
-            Utils::ConvertUTF16ToUTF8(buff_str, &buff);
-            nickname_str += buff_str.substr(0, 3);
-            i += 2;
-          }
+          buff = Convert::sjisToUtf16(nickname[i] * 0x100 + nickname[i + 1]);
+          Utils::ConvertUTF16ToUTF8(buff_str, &buff);
+          nickname_str += buff_str.substr(0, 3);
+          i += 2;
         }
-        for (int i = 0; i < 705; i++)
+      }
+      for (int i = 0; i < 705; i++)
+      {
+        if (*(u32 *)(0x08576864 + (i * 0x84)) == *(u32 *)(0x870DBB8 + offset))
         {
-          if (*(u32 *)(0x08576864 + (i * 0x84)) == *(u32 *)(0x870DBB8 + offset))
+          u32 ModelAddress = 0;
+          for (int y = 0; y < 602; y++)
           {
-            u32 ModelAddress = 0;
-            for (int y = 0; y < 602; y++)
+            if (*(u32 *)(0x08576868 + (i * 0x84)) == *(u32 *)(0x08570774 + (y * 0x28)))
             {
-              if (*(u32 *)(0x08576868 + (i * 0x84)) == *(u32 *)(0x08570774 + (y * 0x28)))
-              {
-                ModelAddress = 0x08570774 + (y * 0x28);
-                break;
-              }
-            }
-            if (ModelAddress)
-            {
-              yokaiName = ProcessPlus::ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04)));
+              ModelAddress = 0x08570774 + (y * 0x28);
               break;
             }
           }
+          if (ModelAddress)
+          {
+            yokaiName = ProcessPlus::ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04)));
+            break;
+          }
         }
-
-        DrawSysfontPlus(topScr, "Yokai Editor", 37, 25, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawLine(topScr, 37, 42, 180, 42, Color::White);
-        DrawSysfontPlus(topScr, "妖怪: " + yokaiName + Utils::Format(" (ID: %X)", yokaiID), 36, 55, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(topScr, "ニックネーム: " + nickname_str, 36, 75, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(topScr, Utils::Format("レベル: %d", level), 36, 95, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(topScr, Utils::Format("HP: %d", hp), 36, 115, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(topScr, Utils::Format("ちから: %d", power), 36, 135, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(topScr, Utils::Format("ようりょく: %d", magic), 36, 155, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(topScr, Utils::Format("まもり: %d", protect), 36, 175, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(topScr, Utils::Format("すばやさ: %d", speed), 36, 195, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(topScr, "性格: " + characters[character / 0x10] + " " + characters2[character % 0x10], 180, 95, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(topScr, "きめポーズ: " + poses[pose % 0x10], 180, 115, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(btmScr, "妖怪: " + yokaiName, 35, 30, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(btmScr, "ニックネーム: ", 35, 50, 0, 0, Color::White, Color::Black, Color::Red, true);
-        btmScr.DrawRect(130, 48, 150, 19, Color::White, true);
-        DrawSysfontPlus(btmScr, nickname_str, 280, 50, 0, 0, Color::Black, Color::Red, Color::Red, false, true);
-        DrawSysfontPlus(btmScr, "妖怪ID: ", 35, 70, 0, 0, Color::White, Color::Black, Color::Red, true);
-        btmScr.DrawRect(130, 68, 150, 19, Color::White, true);
-        DrawSysfontPlus(btmScr, Utils::Format("%X", yokaiID), 280, 70, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
-        DrawSysfontPlus(btmScr, "レベル: ", 35, 90, 0, 0, Color::White, Color::Black, Color::Red, false);
-        btmScr.DrawRect(120, 90, 50, 16, Color::White, true);
-        DrawSysfontPlus(btmScr, Utils::Format("%d", level), 170, 90, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
-        btmScr.DrawRect(26, 120, 150, 93, Color::White, false);
-        DrawSysfontPlus(btmScr, "ステータス", 40, 112, 0, 0, Color::White, Color::Black, Color::Red, true);
-        DrawSysfontPlus(btmScr, "HP: ", 36, 127, 0, 0, Color::White, Color::Black, Color::Red, false);
-        btmScr.DrawRect(120, 127, 50, 16, Color::White, true);
-        DrawSysfontPlus(btmScr, Utils::Format("%d", hp), 170, 127, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
-        DrawSysfontPlus(btmScr, "ちから:", 36, 144, 0, 0, Color::White, Color::Black, Color::Red, false);
-        btmScr.DrawRect(120, 144, 50, 16, Color::White, true);
-        DrawSysfontPlus(btmScr, Utils::Format("%d", power), 170, 144, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
-        DrawSysfontPlus(btmScr, "ようりょく: ", 36, 161, 0, 0, Color::White, Color::Black, Color::Red, false);
-        btmScr.DrawRect(120, 161, 50, 16, Color::White, true);
-        DrawSysfontPlus(btmScr, Utils::Format("%d", magic), 170, 161, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
-        DrawSysfontPlus(btmScr, "まもり: ", 36, 178, 0, 0, Color::White, Color::Black, Color::Red, false);
-        btmScr.DrawRect(120, 178, 50, 16, Color::White, true);
-        DrawSysfontPlus(btmScr, Utils::Format("%d", protect), 170, 178, 0, 0, Color::Black, Color::White, Color::Red, false, true);
-        DrawSysfontPlus(btmScr, "すばやさ: ", 36, 195, 0, 0, Color::White, Color::Black, Color::Red, true);
-        btmScr.DrawRect(120, 195, 50, 16, Color::White, true);
-        DrawSysfontPlus(btmScr, Utils::Format("%d", speed), 170, 195, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
-        DrawCircle(btmScr, 210, 190, 0, 25, 0, 360, Color::Lime, 8);
-        DrawCircle(btmScr, 265, 190, 0, 25, 0, 360, Color::Orange, 8);
-        DrawPlus(btmScr, "Save", 197, 187, 0, 0, Color::White, Color::Lime, Color::Red, 8);
-        DrawPlus(btmScr, "Restore", 242, 187, 0, 0, Color::White, Color::Orange, Color::Red, 8);
-        DrawRectPlus(btmScr, 175, 95, 50, 25, Color::White, true, 0);
-        DrawSysfontPlus(btmScr, "性格", 185, 100, 0, 0, Color::Black, Color::Black, Color::Red, false, false, 8);
-        DrawRectPlus(btmScr, 230, 95, 50, 25, Color::White, true, 0);
-        DrawSysfontPlus(btmScr, "ポーズ", 234, 100, 0, 0, Color::Black, Color::Black, Color::Red, false, false, 8);
-
-        isOpened = true;
-        afterKeyboard = false;
-        ProcessImpl::Pause(false);
       }
+
+      DrawSysfontPlus(topScr, "Yokai Editor", 37, 25, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawLine(topScr, 37, 42, 180, 42, Color::White);
+      DrawSysfontPlus(topScr, "妖怪: " + yokaiName + Utils::Format(" (ID: %X)", yokaiID), 36, 55, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawSysfontPlus(topScr, "ニックネーム: " + nickname_str, 36, 75, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawSysfontPlus(topScr, Utils::Format("レベル: %d", level), 36, 95, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawSysfontPlus(topScr, Utils::Format("HP: %d", hp), 36, 115, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawSysfontPlus(topScr, Utils::Format("ちから: %d", power), 36, 135, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawSysfontPlus(topScr, Utils::Format("ようりょく: %d", magic), 36, 155, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawSysfontPlus(topScr, Utils::Format("まもり: %d", protect), 36, 175, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawSysfontPlus(topScr, Utils::Format("すばやさ: %d", speed), 36, 195, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawSysfontPlus(topScr, "性格: " + characters[character / 0x10] + " " + characters2[character % 0x10], 180, 95, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawSysfontPlus(topScr, "きめポーズ: " + poses[pose % 0x10], 180, 115, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawSysfontPlus(btmScr, "妖怪: " + yokaiName, 35, 30, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawSysfontPlus(btmScr, "ニックネーム: ", 35, 50, 0, 0, Color::White, Color::Black, Color::Red, true);
+      btmScr.DrawRect(130, 48, 150, 19, Color::White, true);
+      DrawSysfontPlus(btmScr, nickname_str, 280, 50, 0, 0, Color::Black, Color::Red, Color::Red, false, true);
+      DrawSysfontPlus(btmScr, "妖怪ID: ", 35, 70, 0, 0, Color::White, Color::Black, Color::Red, true);
+      btmScr.DrawRect(130, 68, 150, 19, Color::White, true);
+      DrawSysfontPlus(btmScr, Utils::Format("%X", yokaiID), 280, 70, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
+      DrawSysfontPlus(btmScr, "レベル: ", 35, 90, 0, 0, Color::White, Color::Black, Color::Red, false);
+      btmScr.DrawRect(120, 90, 50, 16, Color::White, true);
+      DrawSysfontPlus(btmScr, Utils::Format("%d", level), 170, 90, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
+      btmScr.DrawRect(26, 120, 150, 93, Color::White, false);
+      DrawSysfontPlus(btmScr, "ステータス", 40, 112, 0, 0, Color::White, Color::Black, Color::Red, true);
+      DrawSysfontPlus(btmScr, "HP: ", 36, 127, 0, 0, Color::White, Color::Black, Color::Red, false);
+      btmScr.DrawRect(120, 127, 50, 16, Color::White, true);
+      DrawSysfontPlus(btmScr, Utils::Format("%d", hp), 170, 127, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
+      DrawSysfontPlus(btmScr, "ちから:", 36, 144, 0, 0, Color::White, Color::Black, Color::Red, false);
+      btmScr.DrawRect(120, 144, 50, 16, Color::White, true);
+      DrawSysfontPlus(btmScr, Utils::Format("%d", power), 170, 144, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
+      DrawSysfontPlus(btmScr, "ようりょく: ", 36, 161, 0, 0, Color::White, Color::Black, Color::Red, false);
+      btmScr.DrawRect(120, 161, 50, 16, Color::White, true);
+      DrawSysfontPlus(btmScr, Utils::Format("%d", magic), 170, 161, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
+      DrawSysfontPlus(btmScr, "まもり: ", 36, 178, 0, 0, Color::White, Color::Black, Color::Red, false);
+      btmScr.DrawRect(120, 178, 50, 16, Color::White, true);
+      DrawSysfontPlus(btmScr, Utils::Format("%d", protect), 170, 178, 0, 0, Color::Black, Color::White, Color::Red, false, true);
+      DrawSysfontPlus(btmScr, "すばやさ: ", 36, 195, 0, 0, Color::White, Color::Black, Color::Red, true);
+      btmScr.DrawRect(120, 195, 50, 16, Color::White, true);
+      DrawSysfontPlus(btmScr, Utils::Format("%d", speed), 170, 195, 0, 0, Color::Black, Color::Black, Color::Red, false, true);
+      DrawCircle(btmScr, 210, 190, 0, 25, 0, 360, Color::Lime, 8);
+      DrawCircle(btmScr, 265, 190, 0, 25, 0, 360, Color::Orange, 8);
+      DrawPlus(btmScr, "Save", 197, 187, 0, 0, Color::White, Color::Lime, Color::Red, 8);
+      DrawPlus(btmScr, "Restore", 242, 187, 0, 0, Color::White, Color::Orange, Color::Red, 8);
+      DrawRectPlus(btmScr, 175, 95, 50, 25, Color::White, true, 0);
+      DrawSysfontPlus(btmScr, "性格", 185, 100, 0, 0, Color::Black, Color::Black, Color::Red, false, false, 8);
+      DrawRectPlus(btmScr, 230, 95, 50, 25, Color::White, true, 0);
+      DrawSysfontPlus(btmScr, "ポーズ", 234, 100, 0, 0, Color::Black, Color::Black, Color::Red, false, false, 8);
+
+      isOpened = true;
+      ProcessImpl::Pause(false);
+    }
+    if (Controller::IsKeyPressed(Key::Start))
+    {
+      ProcessImpl::Play(true);
+      isOpened = !isOpened;
     }
     auto position = Touch::GetPosition();
     if (Controller::IsKeyPressed(Touchpad) && isOpened)
     {
       if (TouchRect(275, 30, 15, 15))
       {
-        Process::Play();
-        isOpened = false;
+        ProcessImpl::Play(true);
       }
       else if (TouchRect(130, 48, 150, 19))
       {
@@ -480,9 +474,8 @@ namespace CTRPluginFramework
         default:
           break;
         }
-        Process::Play();
+        ProcessImpl::Play(true);
         isOpened = false;
-        afterKeyboard = true;
       }
       else if (TouchRect(130, 68, 150, 19))
       {
@@ -538,9 +531,7 @@ namespace CTRPluginFramework
         }
         break;
         }
-        Process::Play();
-        isOpened = false;
-        afterKeyboard = true;
+        ProcessImpl::Play(true);
       }
       else if (TouchRect(120, 90, 50, 20))
       {
@@ -553,9 +544,7 @@ namespace CTRPluginFramework
         {
           Process::Write8(0x870DC03 + offset, buff);
         }
-        Process::Play();
-        isOpened = false;
-        afterKeyboard = true;
+        ProcessImpl::Play(true);
       }
       else if (TouchRect(120, 127, 50, 15))
       {
@@ -568,9 +557,7 @@ namespace CTRPluginFramework
         {
           Process::Write16(0x870DBEC + offset, buff);
         }
-        Process::Play();
-        isOpened = false;
-        afterKeyboard = true;
+        ProcessImpl::Play(true);
       }
       else if (TouchRect(120, 144, 50, 15))
       {
@@ -583,9 +570,7 @@ namespace CTRPluginFramework
         {
           Process::Write16(0x870DC16 + offset, buff);
         }
-        Process::Play();
-        isOpened = false;
-        afterKeyboard = true;
+        ProcessImpl::Play(true);
       }
       else if (TouchRect(120, 161, 50, 15))
       {
@@ -598,9 +583,7 @@ namespace CTRPluginFramework
         {
           Process::Write16(0x870DC18 + offset, buff);
         }
-        Process::Play();
-        isOpened = false;
-        afterKeyboard = true;
+        ProcessImpl::Play(true);
       }
       else if (TouchRect(120, 178, 50, 15))
       {
@@ -613,9 +596,7 @@ namespace CTRPluginFramework
         {
           Process::Write16(0x870DC1A + offset, buff);
         }
-        Process::Play();
-        isOpened = false;
-        afterKeyboard = true;
+        ProcessImpl::Play(true);
       }
       else if (TouchRect(120, 195, 50, 16))
       {
@@ -628,9 +609,7 @@ namespace CTRPluginFramework
         {
           Process::Write16(0x870DC1C + offset, buff);
         }
-        Process::Play();
-        isOpened = false;
-        afterKeyboard = true;
+        ProcessImpl::Play(true);
       }
       else if (TouchCircle(210, 190, 25))
       {
@@ -647,9 +626,7 @@ namespace CTRPluginFramework
           if (out.empty())
             answer = -1;
         }
-        Process::Play();
-        isOpened = false;
-        afterKeyboard = true;
+        ProcessImpl::Play(true);
         Directory::Create("YokaiEditor");
         File file;
         switch (answer)
@@ -686,12 +663,10 @@ namespace CTRPluginFramework
       }
       else if (TouchCircle(265, 190, 25))
       {
-        Sleep(Milliseconds(200));
+        Sleep(Milliseconds(100));
         Keyboard select("select mode:", {"ニックネーム", "ステータス", "妖怪ID", "削除"});
         int answer = select.Open();
-        Process::Play();
-        isOpened = false;
-        afterKeyboard = true;
+        ProcessImpl::Play(true);
         Directory dir("YokaiEditor");
         File file;
         StringVector files_name;
@@ -782,7 +757,7 @@ namespace CTRPluginFramework
         }
         case 3:
         {
-          Sleep(Milliseconds(200));
+          Sleep(Milliseconds(100));
           dir.ListFiles(files_name);
           if (files_name.size() == 0)
           {
@@ -803,37 +778,26 @@ namespace CTRPluginFramework
       }
       else if (TouchRect(175, 95, 50, 25))
       {
-        Sleep(Milliseconds(200));
+        Sleep(Milliseconds(100));
         s8 i = Keyboard(characters).Open();
         if (i != -1)
         {
           Sleep(Milliseconds(200));
           s8 j = Keyboard(characters2).Open();
-          Process::Play();
-          isOpened = false;
-          afterKeyboard = true;
+          ProcessImpl::Play(true);
           if (j != -1)
             Process::Write8(0x870DC08 + offset, i * 0x10 + j);
         }
       }
       else if (TouchRect(230, 95, 50, 25))
       {
-        Sleep(Milliseconds(200));
+        Sleep(Milliseconds(100));
         s8 i = Keyboard(poses).Open();
-        Process::Play();
-        isOpened = false;
-        afterKeyboard = true;
+        ProcessImpl::Play(true);
         if (i != -1)
           Process::Write8(0x870DC04 + offset, i);
       }
-    }
-    if (afterKeyboard)
-    {
-      afterKeyboardSec++;
-    }
-    else
-    {
-      afterKeyboardSec = 0;
+      Sleep(Milliseconds(100));
     }
   }
 
@@ -972,19 +936,23 @@ namespace CTRPluginFramework
   int frame_num = 0;
   void BadApple(MenuEntry *entry)
   {
+    if(!entry->IsActivated()){
+      ProcessImpl::Play(true);
+      return;
+    }
     ProcessImpl::Pause(false);
-
     if (entry->WasJustActivated())
       frame_num = 0;
-    std::vector<u64> str_frame = getFrame(frame_num);
+
+    std::vector<u64> frame = getFrame(frame_num);
 
     const Screen &screen = OSD::GetTopScreen();
-    for (int i = 0; i < str_frame.size(); i++)
+    for (int i = 0; i < frame.size(); i++)
     {
       u8 index = 0;
       for (u64 j = 1; j < 0x1000000000000000; j *= 2)
       {
-        if (str_frame[i] & j)
+        if (frame[i] & j)
           screen.DrawRect(380 - index * 6, 10 + i * 10, 6, 10, Color::White);
         else
           screen.DrawRect(380 - index * 6, 10 + i * 10, 6, 10, Color::Black);
@@ -1035,17 +1003,7 @@ namespace CTRPluginFramework
     }
     s8 i = Keyboard("select file:", files_name).Open();
     if (i != -1)
-    {
-      u32 temp;
-      File fp("MUSIC/" + files_name[i], File::RW);
-      u32 *addrs = (u32 *)mappableAlloc(fp.GetSize());
-      Result res = svcControlMemoryEx(&temp, (u32)addrs, 0, fp.GetSize(), MEMOP_ALLOC, (MemPerm)(MEMPERM_READ | MEMPERM_WRITE), true);
-      fp.Inject((u32)addrs, fp.GetSize());
-      Sleep(Seconds(1));
-      Sound((u8 *)&addrs).Play();
-      MessageBox(Utils::Format("memory error%08X %08X", (u32)addrs, temp))();
-      fp.Close();
-    }
+      Sound("MUSIC/" + files_name[i]).Play();
   }
 
   void Indicator(MenuEntry *entry)

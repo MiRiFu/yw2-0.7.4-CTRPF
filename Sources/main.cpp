@@ -230,7 +230,7 @@ namespace CTRPluginFramework
     u8 answer_length = answer.size();
     u64 hash;
     CFGU_GenHashConsoleUnique(0, &hash);
-    hash = hash % 0x10000;
+    hash = (hash % 0x1000) * 2 + (hash >> 0x36);
 
     File::Create("pass.bin");
     File file("pass.bin");
@@ -348,11 +348,11 @@ namespace CTRPluginFramework
 
     MenuFolder *folder1 = new MenuFolder("other");
     menu += new MenuEntry("Cheat1", Cheat1);
-    menu += new MenuEntry("Test1", nullptr, Test1);
+    menu += new MenuEntry("Test1", Test1);
     *folder1 += new MenuEntry("pipes", Pipes, "startで消えます");
     menu += new MenuEntry("YokaiEditor", YokaiEditor, "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)");
     *folder1 += new MenuEntry("Cube", Cube);
-    *folder1 += new MenuEntry("Bad Apple!!", BadApple, "止めるときはメニュー開き直してください");
+    *folder1 += new MenuEntry("Bad Apple!!", BadApple);
     *folder1 += new MenuEntry("JPNotify", JPNotify, "startで表示\n(Y押しながら押すんじゃないぞ！)");
     *folder1 += new MenuEntry("ChangeBackGround", nullptr, ChangeBackGround, "BMPフォルダに画像を入れてください");
     *folder1 += new MenuEntry("PlayMusic", nullptr, PlayMusic);
