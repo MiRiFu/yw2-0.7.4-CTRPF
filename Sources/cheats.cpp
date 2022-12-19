@@ -427,6 +427,7 @@ namespace CTRPluginFramework
       if (TouchRect(275, 30, 15, 15))
       {
         ProcessImpl::Play(true);
+        isOpened = !isOpened;
       }
       else if (TouchRect(130, 48, 150, 19))
       {
@@ -536,78 +537,44 @@ namespace CTRPluginFramework
       else if (TouchRect(120, 90, 50, 20))
       {
         Sleep(Milliseconds(200));
-        u8 buff;
-        Keyboard key("レベル:\n255以下にしてください");
-        key.SetMaxLength(3);
-        key.IsHexadecimal(false);
-        if (key.Open(buff) != -1)
-        {
-          Process::Write8(0x870DC03 + offset, buff);
-        }
+        if (Keyboard("レベル:").Open(level) != -1)
+          Process::Write8(0x870DC03 + offset, level);
         ProcessImpl::Play(true);
       }
       else if (TouchRect(120, 127, 50, 15))
       {
         Sleep(Milliseconds(200));
-        u16 buff;
-        Keyboard key("HP:");
-        key.SetMaxLength(5);
-        key.IsHexadecimal(false);
-        if (key.Open(buff) != -1)
-        {
-          Process::Write16(0x870DBEC + offset, buff);
-        }
+        if (Keyboard("HP:").Open(hp) != -1)
+          Process::Write16(0x870DBEC + offset, hp);
         ProcessImpl::Play(true);
       }
       else if (TouchRect(120, 144, 50, 15))
       {
         Sleep(Milliseconds(200));
-        u16 buff;
-        Keyboard key("ちから:");
-        key.SetMaxLength(5);
-        key.IsHexadecimal(false);
-        if (key.Open(buff) != -1)
-        {
-          Process::Write16(0x870DC16 + offset, buff);
-        }
+        if (Keyboard("ちから:").Open(power) != -1)
+          Process::Write16(0x870DC16 + offset, power);
         ProcessImpl::Play(true);
       }
       else if (TouchRect(120, 161, 50, 15))
       {
         Sleep(Milliseconds(200));
-        u16 buff;
-        Keyboard key("ようりょく:");
-        key.SetMaxLength(5);
-        key.IsHexadecimal(false);
-        if (key.Open(buff) != -1)
-        {
-          Process::Write16(0x870DC18 + offset, buff);
-        }
+        if (Keyboard("ようりょく:").Open(magic) != -1)
+          Process::Write16(0x870DC18 + offset, magic);
         ProcessImpl::Play(true);
       }
       else if (TouchRect(120, 178, 50, 15))
       {
         Sleep(Milliseconds(200));
-        u16 buff;
-        Keyboard key("まもり:");
-        key.SetMaxLength(5);
-        key.IsHexadecimal(false);
-        if (key.Open(buff) != -1)
-        {
-          Process::Write16(0x870DC1A + offset, buff);
-        }
+        if (Keyboard("まもり:").Open(protect) != -1)
+          Process::Write16(0x870DC1A + offset, protect);
         ProcessImpl::Play(true);
       }
       else if (TouchRect(120, 195, 50, 16))
       {
         Sleep(Milliseconds(200));
-        u16 buff;
-        Keyboard key("すばやさ:");
-        key.SetMaxLength(5);
-        key.IsHexadecimal(false);
-        if (key.Open(buff) != -1)
+        if (Keyboard("すばやさ:").Open(speed) != -1)
         {
-          Process::Write16(0x870DC1C + offset, buff);
+          Process::Write16(0x870DC1C + offset, speed);
         }
         ProcessImpl::Play(true);
       }
@@ -936,7 +903,8 @@ namespace CTRPluginFramework
   int frame_num = 0;
   void BadApple(MenuEntry *entry)
   {
-    if(!entry->IsActivated()){
+    if (!entry->IsActivated())
+    {
       ProcessImpl::Play(true);
       return;
     }

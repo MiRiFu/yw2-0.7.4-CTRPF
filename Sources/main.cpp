@@ -3,7 +3,7 @@
 #include <CTRPluginFramework.hpp>
 #include "cheats.hpp"
 #include "KaniCodes.hpp"
-#include "CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
+#include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 #include <ctime>
 
 namespace CTRPluginFramework
@@ -364,15 +364,15 @@ namespace CTRPluginFramework
   {
     PluginMenu *menu = new PluginMenu("Action Replay", 0, 7, 4, "made by kani537");
 
-    OSD::Run(LoadGameTitle);
-    Sleep(Seconds(1));
-    OSD::Stop(LoadGameTitle);
+    // OSD::Run(LoadGameTitle);
+    // Sleep(Seconds(1));
+    // OSD::Stop(LoadGameTitle);
 
-    u64 hash;
-    CFGU_GenHashConsoleUnique(0, &hash);
+    // u64 hash;
+    // CFGU_GenHashConsoleUnique(0, &hash);
 
-    if (!checkPass())
-      return (0);
+    // if (!checkPass())
+    //   return (0);
     OSD::Notify("Authentication Success");
     LoadKanji();
 

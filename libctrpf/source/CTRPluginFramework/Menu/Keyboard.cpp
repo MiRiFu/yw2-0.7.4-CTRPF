@@ -235,7 +235,7 @@ namespace CTRPluginFramework
 
     Keyboard::Keyboard(const std::string &text) : _keyboard(new KeyboardImpl(this, text))
     {
-        _hexadecimal = true;
+        _hexadecimal = false;
         _isPopulated = false;
         DisplayTopScreen = !text.empty();
     }
