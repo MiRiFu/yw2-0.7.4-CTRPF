@@ -11,10 +11,9 @@ namespace CTRPluginFramework
 {
   void Test1(MenuEntry *entry)
   {
-    // std::string str = "あいうえお";
-    // std::string str1 = Convert::hiraganaToKatakana(str);
-    // int i = Convert::getMultiByte(str);
-    // MessageBox(Utils::Format("%d %c %c", i, str.c_str(), str1.c_str()))();
+    std::string str = "ヨウカイエディター\ndesigned with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)";
+    std::string str1 = Convert::katakanaToHiragana(str);
+    MessageBox(str1 + "")();
   }
 
   bool flagShowScreenBuffer = false;
@@ -237,54 +236,53 @@ namespace CTRPluginFramework
     }
   }
 
-  // void addSearch(MenuFolder *folder,MenuFolder *SearchFolder,std::string input)
-  // {
-  //   if(folder->Name() == "Search")
-  //     return;
-  //   std::vector<CTRPluginFramework::MenuEntry *> entries = folder->GetEntryList();
-  //   std::vector<MenuFolder *> folders = folder->GetFolderList();
-  //   for(auto folder1 : folders){
-  //     addSearch(folder1,SearchFolder,input);
-  //   }
-  //   for(auto entry:entries){
-  //     if (entry->Name().find(input) != std::string::npos)
-  //     {
-  //       *SearchFolder += new MenuEntry(entry->Name(), entry->GetGameFunc(), entry->GetMenuFunc(), entry->Note());
-  //     }
-  //   }
-  // }
+  void addSearch(MenuFolder *folder,MenuFolder *SearchFolder,std::string input)
+  {
+    if(folder->Name() == "Search")
+      return;
+    std::vector<CTRPluginFramework::MenuEntry *> entries = folder->GetEntryList();
+    std::vector<MenuFolder *> folders = folder->GetFolderList();
+    for(auto folder1 : folders){
+      addSearch(folder1,SearchFolder,input);
+    }
+    for(auto entry:entries){
+      if ((Convert::toLower(entry->Name()).find(input) != std::string::npos) || (Convert::hiraganaToKatakana(entry->Note()).find(input) != std::string::npos) || (Convert::katakanaToHiragana(entry->Note()).find(input) != std::string::npos))
+      {
+        *SearchFolder += new MenuEntry(entry->Name(), entry->GetGameFunc(), entry->GetMenuFunc(), entry->Note());
+      }
+    }
+  }
 
 
   void Search(MenuEntry *entry)
   {
-    // std::string input;
-    // PluginMenu *menu = PluginMenu::GetRunningInstance();
-    // japKey(input, "エントリー名を入力してください");
-    // if (input.empty())
-    //   return;
+    std::string input;
+    PluginMenu *menu = PluginMenu::GetRunningInstance();
+    japKey(input, "エントリー名を入力してください");
+    if (input.empty())
+      return;
 
-    // std::transform(input.begin(), input.end(), input.begin(), [](unsigned char c)
-    //                { return std::tolower(c); });
-    // std::vector<MenuFolder *> folders = menu->GetFolderList();
-    // MenuFolder *SearchFolder;
-    // for (auto folder : folders)
-    // {
-    //   if (folder->Name() == "Search")
-    //   {
-    //     folder->Clear();
-    //     *folder += new MenuEntry("Search", nullptr, Search);
-    //     SearchFolder = folder;
-    //   }
-    // }
-    // std::vector<CTRPluginFramework::MenuEntry *> entries = menu->GetEntryList();
-    // for (auto menu_entry : entries)
-    // {
-    //   if (menu_entry->Name().find(input) != std::string::npos)
-    //     *SearchFolder += new MenuEntry(menu_entry->Name(), menu_entry->GetGameFunc(), menu_entry->GetMenuFunc(), menu_entry->Note());
-    // }
+    input = Convert::toLower(input);
+    std::vector<MenuFolder *> folders = menu->GetFolderList();
+    MenuFolder *SearchFolder;
+    for (auto folder : folders)
+    {
+      if (folder->Name() == "Search")
+      {
+        folder->Clear();
+        *folder += new MenuEntry("Search", nullptr, Search);
+        SearchFolder = folder;
+      }
+    }
+    std::vector<CTRPluginFramework::MenuEntry *> entries = menu->GetEntryList();
+    for (auto menu_entry : entries)
+    {
+      if ((Convert::toLower(menu_entry->Name()).find(input) != std::string::npos) || (Convert::toLower(menu_entry->Note()).find(input) != std::string::npos))
+        *SearchFolder += new MenuEntry(menu_entry->Name(), menu_entry->GetGameFunc(), menu_entry->GetMenuFunc(), menu_entry->Note());
+    }
 
-    // for (auto folder : folders)
-    //   addSearch(folder, SearchFolder, input);
+    for (auto folder : folders)
+      addSearch(folder, SearchFolder, input);
   }
 
   bool isOpened = false;
@@ -975,16 +973,16 @@ namespace CTRPluginFramework
 
   void PlayMusic(MenuEntry *entry)
   {
-    StringVector files_name;
-    Directory("MUSIC", true).ListFiles(files_name, ".bcwav");
-    if (!files_name.size())
-    {
-      MessageBox("no files found")();
-      return;
-    }
-    s8 i = Keyboard("select file:", files_name).Open();
-    if (i != -1)
-      Sound("MUSIC/" + files_name[i]).Play();
+    // StringVector files_name;
+    // Directory("MUSIC", true).ListFiles(files_name, ".bcwav");
+    // if (!files_name.size())
+    // {
+    //   MessageBox("no files found")();
+    //   return;
+    // }
+    // s8 i = Keyboard("select file:", files_name).Open();
+    // if (i != -1)
+    //   Sound("MUSIC/" + files_name[i]).Play();
   }
 
   void Indicator(MenuEntry *entry)

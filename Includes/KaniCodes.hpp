@@ -22,11 +22,12 @@ namespace CTRPluginFramework
     static u16 sjisToUtf16(u16 sjis);
     static u16 utf16ToSjis(u16 utf16);
     static u16 strToSjis(std::string moji);
-    // static int getMultiByte(std::string str);
+    static int getMultiByte(std::string str);
     static void SetHiraganaKanji(std::string hiragana, std::string kanji);
+    static std::string toLower(std::string str);
     static std::string hiraganaToKanji(std::string hiragana);
-    // static std::string hiraganaToKatakana(std::string hiragana);
-    // static std::string katakanaToHiragana(std::string katakana);
+    static std::string hiraganaToKatakana(std::string hiragana);
+    static std::string katakanaToHiragana(std::string katakana);
   };
 
   void japKey(std::string &out, std::string text, std::vector<u8> *sjis = 0);

@@ -3,11 +3,11 @@ Author: Nanquitas
 Version: # Plugin version
     Major: 0
     Minor: 7
-    Revision: 2
+    Revision: 4
 
 Targets: # Low TitleId of games which are compatibles with this plugin (0 for all)
 
-Title: CTRPF - Blank Template
+Title: CTRPF - kani edition
 
 Summary: A CTRPF Plugin, with a lot of tools
 
