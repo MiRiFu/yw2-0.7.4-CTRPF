@@ -1,4 +1,6 @@
 #include "KaniCodes.hpp"
+#include <stdlib.h>
+#include <locale.h>
 #include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 
 namespace CTRPluginFramework
@@ -8093,6 +8095,26 @@ namespace CTRPluginFramework
     }
     return 0;
   }
+  // int Convert::getMultiByte(std::string str)
+  // {
+  //   const char *char_str = str.c_str();
+
+  //   if (setlocale(LC_CTYPE, "") == NULL)
+  //     return -1;
+
+  //   int i = 0;
+  //   int char_count = 0;
+  //   while (char_str[i] != '\0')
+  //   {
+  //     int res = mblen(&char_str[i], MB_CUR_MAX);
+  //     if (res < 0)
+  //       return -1;
+
+  //     i += res;
+  //     char_count++;
+  //   }
+  //   return char_count;
+  // }
 
   struct HIRAGANA_KANJI
   {
@@ -8121,6 +8143,47 @@ namespace CTRPluginFramework
     }
     return hiragana;
   }
+
+  // std::string Convert::hiraganaToKatakana(std::string hiragana)
+  // {
+  //   int char_count = Convert::getMultiByte(hiragana);
+  //   if (char_count < 0)
+  //     return "error";
+  //   u16 utf16[char_count];
+  //   std::string buff = "";
+  //   Process::WriteString((u32)&utf16, hiragana, StringFormat::Utf16);
+  //   for (int i = 0; i < char_count; i++)
+  //   {
+  //     if (!(utf16[i] >= 0x3041 && utf16[i] <= 0x3093))
+  //       return "error";
+  //     std::string buff1;
+  //     utf16[i] += 0x60;
+  //     Utils::ConvertUTF16ToUTF8(buff1, &utf16[i]);
+  //     buff += buff1;
+  //   }
+  //   return buff;
+  // }
+
+  // std::string Convert::katakanaToHiragana(std::string katakana)
+  // {
+  //   int char_count = Convert::getMultiByte(katakana);
+  //   if (char_count < 0)
+  //     return "error";
+  //   u16 utf16[char_count];
+  //   std::string buff = "";
+  //   Process::WriteString((u32)&utf16, katakana, StringFormat::Utf16);
+  //   for (int i = 0; i < char_count; i++)
+  //   {
+  //     if (!(utf16[i] >= 0x30A2 && utf16[i] <= 0x30F3))
+  //       return "error";
+  //     std::string buff1;
+  //     utf16[i] -= 0x60;
+  //     Utils::ConvertUTF16ToUTF8(buff1, &utf16[i]);
+  //     buff += buff1;
+  //   }
+  //   return buff;
+  // }
+
 
   bool TouchRect(u32 x, u32 y, u32 w, u32 h)
   {

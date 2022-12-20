@@ -224,7 +224,6 @@ namespace CTRPluginFramework
 
   bool checkPass(void)
   {
-
     std::vector<u16> answer = {0x6A, 0x3EC, 0x2175, 0x29FB, 0x2CF, 0x5C, 0xBB};
     std::vector<u16> diff = {0x84, 0x25, 0x266, 0x2999, 0x2114, 0x37A, 0x7};
     u8 answer_length = answer.size();
@@ -348,7 +347,7 @@ namespace CTRPluginFramework
 
     MenuFolder *folder1 = new MenuFolder("other");
     menu += new MenuEntry("Cheat1", Cheat1);
-    menu += new MenuEntry("Test1", Test1);
+    menu += new MenuEntry("Test1",Test1);
     *folder1 += new MenuEntry("pipes", Pipes, "startで消えます");
     menu += new MenuEntry("YokaiEditor", YokaiEditor, "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)");
     *folder1 += new MenuEntry("Cube", Cube);
@@ -364,16 +363,13 @@ namespace CTRPluginFramework
   {
     PluginMenu *menu = new PluginMenu("Action Replay", 0, 7, 4, "made by kani537");
 
-    // OSD::Run(LoadGameTitle);
-    // Sleep(Seconds(1));
-    // OSD::Stop(LoadGameTitle);
+    OSD::Run(LoadGameTitle);
+    Sleep(Seconds(1));
+    OSD::Stop(LoadGameTitle);
 
-    // u64 hash;
-    // CFGU_GenHashConsoleUnique(0, &hash);
-
-    // if (!checkPass())
-    //   return (0);
-    OSD::Notify("Authentication Success");
+    if (!checkPass())
+      return (0);
+    OSD::Notify("verified");
     LoadKanji();
 
     menu->OnNewFrame = DrawCallBack;

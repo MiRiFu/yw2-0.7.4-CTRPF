@@ -11,6 +11,10 @@ namespace CTRPluginFramework
 {
   void Test1(MenuEntry *entry)
   {
+    // std::string str = "あいうえお";
+    // std::string str1 = Convert::hiraganaToKatakana(str);
+    // int i = Convert::getMultiByte(str);
+    // MessageBox(Utils::Format("%d %c %c", i, str.c_str(), str1.c_str()))();
   }
 
   bool flagShowScreenBuffer = false;
@@ -233,45 +237,54 @@ namespace CTRPluginFramework
     }
   }
 
-  std::vector<std::vector<std::string>> MenuEntryNameList = {{"pipes", "ぱいぷす", "パイプス", "Pipes"}, {"yokaieditor", "ようかいえでぃたー", "ヨウカイエディター", "YokaiEditor"}, {"cube", "きゅーぶ", "キューブ", "Cube"}, {"bad apple!!", "ばっどあっぷる！！", "バッドアップル！！", "Bad Apple!!"}, {"jpnotify", "じぇーぴーにほんごのてぃふぁい", "ジェーピーニホンゴノティファイ", "JPNotify"}, {"changebackground", "ちぇんじばっくぐらうんど", "チェンジバックグラウンド", "ChangeBackGround"}, {"playmusic", "ぷれいみゅーじっく", "プレイミュージック", "PlayMusic"}, {"indicator", "いんでぃけーたー", "インディケーター", "Indicator"}};
-  FuncPointer GameFuncList[] = {Pipes, YokaiEditor, Cube, BadApple, JPNotify, nullptr, nullptr, Indicator};
-  FuncPointer MenuFuncList[] = {nullptr, nullptr, nullptr, nullptr, nullptr, ChangeBackGround, PlayMusic, nullptr};
-  std::string NoteList[] = {"startで消えます", "designed with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)", "", "", "startで表示\n(Y押しながら押すんじゃないぞ！)", "BMPフォルダに画像を入れてください", "", ""};
+  // void addSearch(MenuFolder *folder,MenuFolder *SearchFolder,std::string input)
+  // {
+  //   if(folder->Name() == "Search")
+  //     return;
+  //   std::vector<CTRPluginFramework::MenuEntry *> entries = folder->GetEntryList();
+  //   std::vector<MenuFolder *> folders = folder->GetFolderList();
+  //   for(auto folder1 : folders){
+  //     addSearch(folder1,SearchFolder,input);
+  //   }
+  //   for(auto entry:entries){
+  //     if (entry->Name().find(input) != std::string::npos)
+  //     {
+  //       *SearchFolder += new MenuEntry(entry->Name(), entry->GetGameFunc(), entry->GetMenuFunc(), entry->Note());
+  //     }
+  //   }
+  // }
+
+
   void Search(MenuEntry *entry)
   {
-    std::string input;
-    std::vector<u8> entryNums;
-    PluginMenu *menu = PluginMenu::GetRunningInstance();
-    japKey(input, "エントリー名を入力してください");
-    if (input.empty())
-      return;
-    std::transform(input.begin(), input.end(), input.begin(), [](unsigned char c)
-                   { return std::tolower(c); });
-    // std::transform(input.cbegin(), input.cend(), input.begin(), tolower);
-    for (int i = 0; i < MenuEntryNameList.size(); i++)
-    {
-      for (int j = 0; j < MenuEntryNameList[i].size(); j++)
-      {
-        if (MenuEntryNameList[i][j].find(input) != std::string::npos)
-        {
-          entryNums.push_back(i);
-          break;
-        }
-      }
-    }
-    std::vector<MenuFolder *> folders = menu->GetFolderList();
-    for (auto folder : folders)
-    {
-      if (folder->Name() == "Search")
-      {
-        folder->Clear();
-        *folder += new MenuEntry("Search", nullptr, Search);
-        for (int i = 0; i < entryNums.size(); i++)
-        {
-          *folder += new MenuEntry(MenuEntryNameList[entryNums[i]][3], GameFuncList[entryNums[i]], MenuFuncList[entryNums[i]], NoteList[entryNums[i]]);
-        }
-      }
-    }
+    // std::string input;
+    // PluginMenu *menu = PluginMenu::GetRunningInstance();
+    // japKey(input, "エントリー名を入力してください");
+    // if (input.empty())
+    //   return;
+
+    // std::transform(input.begin(), input.end(), input.begin(), [](unsigned char c)
+    //                { return std::tolower(c); });
+    // std::vector<MenuFolder *> folders = menu->GetFolderList();
+    // MenuFolder *SearchFolder;
+    // for (auto folder : folders)
+    // {
+    //   if (folder->Name() == "Search")
+    //   {
+    //     folder->Clear();
+    //     *folder += new MenuEntry("Search", nullptr, Search);
+    //     SearchFolder = folder;
+    //   }
+    // }
+    // std::vector<CTRPluginFramework::MenuEntry *> entries = menu->GetEntryList();
+    // for (auto menu_entry : entries)
+    // {
+    //   if (menu_entry->Name().find(input) != std::string::npos)
+    //     *SearchFolder += new MenuEntry(menu_entry->Name(), menu_entry->GetGameFunc(), menu_entry->GetMenuFunc(), menu_entry->Note());
+    // }
+
+    // for (auto folder : folders)
+    //   addSearch(folder, SearchFolder, input);
   }
 
   bool isOpened = false;
