@@ -8164,13 +8164,14 @@ namespace CTRPluginFramework
     u16 utf16[char_count + 1];
     std::string buff = "";
     Process::WriteString((u32)&utf16, hiragana, StringFormat::Utf16);
-    for (int i = 0; i < char_count; i++)
+    for (int i = 0; i < char_count + 1; i++)
     {
       if (utf16[i] >= 0x3041 && utf16[i] <= 0x3093)
         utf16[i] += 0x60;
       std::string buff1;
-      Utils::ConvertUTF16ToUTF8(buff1, &utf16[i]);
-      if (Convert::getMultiByte(buff1) != buff1.size())
+      u16 buff2 = utf16[i];
+      Utils::ConvertUTF16ToUTF8(buff1, &buff2);
+      if (buff2 > 0x1000)
         buff += buff1.substr(0, 3);
       else
         buff += buff1.substr(0, 1);
@@ -8191,8 +8192,9 @@ namespace CTRPluginFramework
       if (utf16[i] >= 0x30A1 && utf16[i] <= 0x30F3)
         utf16[i] -= 0x60;
       std::string buff1;
-      Utils::ConvertUTF16ToUTF8(buff1, &utf16[i]);
-      if (Convert::getMultiByte(buff1) != buff1.size())
+      u16 buff2 = utf16[i];
+      Utils::ConvertUTF16ToUTF8(buff1, &buff2);
+      if (buff2 > 0x1000)
         buff += buff1.substr(0, 3);
       else
         buff += buff1.substr(0, 1);
@@ -8231,5 +8233,69 @@ namespace CTRPluginFramework
       }
     }
     return false;
+  }
+
+  bool flagShowScreenBuffer = false;
+  std::vector<std::vector<Color>> screenBuffer(400, std::vector<Color>(240, Color::Black));
+
+  void setFlagShowScreenBuffer(bool flag)
+  {
+    flagShowScreenBuffer = flag;
+  }
+
+  void setScreenBuffer(u16 x, u16 y, Color color)
+  {
+    screenBuffer[x][y] = color;
+  }
+
+  void fillScreenBuffer(Color color)
+  {
+    screenBuffer = std::vector<std::vector<Color>>(400, std::vector<Color>(240, color));
+  }
+
+  bool ShowScreenBuffer(const Screen &screen)
+  {
+    if (!screen.IsTop)
+      return false;
+    for (int i = 0; i < 400; i++)
+    {
+      for (int j = 0; j < 240; j++)
+      {
+        if (screenBuffer[i][j] != Color::Black)
+        {
+          screen.DrawPixel(i, j, screenBuffer[i][j]);
+        }
+      }
+    }
+    if (!flagShowScreenBuffer)
+      return true;
+  }
+
+  std::string ReadSJIS(u32 Address)
+  {
+    std::string out = "";
+    u8 num = 0;
+    while (1)
+    {
+      if (*(u8 *)(Address + num) == 0)
+        return out;
+      if ((*(u8 *)(Address + num) < 0x80) || (*(u8 *)(Address + num) > 0xA0))
+      {
+        u16 buff = Convert::sjisToUtf16(*(u8 *)(Address + num));
+        std::string buff_str;
+        Utils::ConvertUTF16ToUTF8(buff_str, &buff);
+        out += buff_str.substr(0, 1);
+        num++;
+      }
+      else
+      {
+        u16 buff = Convert::sjisToUtf16(((*(u8 *)(Address + num)) * 0x100) + *(u8 *)(Address + num + 1));
+        std::string buff_str;
+        Utils::ConvertUTF16ToUTF8(buff_str, &buff);
+        out += buff_str.substr(0, 3);
+        num += 2;
+      }
+    }
+    return out;
   }
 }

@@ -17,7 +17,6 @@ namespace CTRPluginFramework
         static void MainWrite16(const std::vector<u32> &Addresses, const std::vector<u16> &Values, MenuEntry *entry);
         static void MainWrite32(u32 Address, u32 Value, MenuEntry *entry);
         static void MainWrite32(const std::vector<u32> &Addresses, const std::vector<u32> &Values, MenuEntry *entry);
-        static std::string ReadSJIS(u32 Address);
     };
 }
 

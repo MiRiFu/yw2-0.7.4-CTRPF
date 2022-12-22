@@ -1,5 +1,4 @@
 #include "Helpers.hpp"
-#include "KaniCodes.hpp"
 
 namespace CTRPluginFramework
 {
@@ -227,33 +226,5 @@ namespace CTRPluginFramework
         Check = false;
       }
     }
-  }
-
-  std::string ProcessPlus::ReadSJIS(u32 Address)
-  {
-    std::string out = "";
-    u8 num = 0;
-    while (1)
-    {
-      if (*(u8 *)(Address + num) == 0)
-        return out;
-      if ((*(u8 *)(Address + num) < 0x80) || (*(u8 *)(Address + num) > 0xA0))
-      {
-        u16 buff = Convert::sjisToUtf16(*(u8 *)(Address + num));
-        std::string buff_str;
-        Utils::ConvertUTF16ToUTF8(buff_str, &buff);
-        out += buff_str.substr(0, 1);
-        num++;
-      }
-      else
-      {
-      u16 buff = Convert::sjisToUtf16(((*(u8 *)(Address + num)) * 0x100) + *(u8 *)(Address + num + 1));
-      std::string buff_str;
-      Utils::ConvertUTF16ToUTF8(buff_str, &buff);
-      out += buff_str.substr(0, 3);
-      num += 2;
-      }
-    }
-    return out;
   }
 }

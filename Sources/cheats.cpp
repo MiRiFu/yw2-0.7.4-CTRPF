@@ -11,30 +11,6 @@ namespace CTRPluginFramework
 {
   void Test1(MenuEntry *entry)
   {
-    std::string str = "ヨウカイエディター\ndesigned with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)";
-    std::string str1 = Convert::katakanaToHiragana(str);
-    MessageBox(str1 + "")();
-  }
-
-  bool flagShowScreenBuffer = false;
-  std::vector<std::vector<Color>> screenColor(400, std::vector<Color>(240, Color::Black));
-
-  bool ShowScreenBuffer(const Screen &screen)
-  {
-    if (!screen.IsTop)
-      return false;
-    for (int i = 0; i < 400; i++)
-    {
-      for (int j = 0; j < 240; j++)
-      {
-        if (screenColor[i][j] != Color::Black)
-        {
-          screen.DrawPixel(i, j, screenColor[i][j]);
-        }
-      }
-    }
-    if (!flagShowScreenBuffer)
-      return true;
   }
 
   void JPNotify(MenuEntry *entry)
@@ -99,16 +75,15 @@ namespace CTRPluginFramework
   {
     if (entry->WasJustActivated())
     {
-      screenColor = std::vector<std::vector<Color>>(400, std::vector<Color>(240, Color::Black));
-      flagShowScreenBuffer = true;
+      fillScreenBuffer(Color::Black);
+      setFlagShowScreenBuffer(true);
       OSD::Run(ShowScreenBuffer);
     }
     if (!entry->IsActivated())
     {
-      flagShowScreenBuffer = false;
+      setFlagShowScreenBuffer(false);
       OSD::Stop(ShowScreenBuffer);
     }
-    const Screen &screen = OSD::GetTopScreen();
     if (isReset)
     {
       switch (direct)
@@ -145,10 +120,9 @@ namespace CTRPluginFramework
       }
       else
       {
-        // screen.DrawRect(xPos, yPos, 3, 3, Color::SkyBlue);
         for (int k = -1; k < 2; k++)
         {
-          screenColor[xPos + k][yPos + k] = colorList[i];
+          setScreenBuffer(xPos + k, yPos + k, colorList[i]);
         }
         switch (direct)
         {
@@ -156,56 +130,56 @@ namespace CTRPluginFramework
           if (j == 0)
           {
             if (buff_direct == 1)
-              screenColor[xPos + 2][yPos] = Color::Black;
+              setScreenBuffer(xPos + 2, yPos, Color::Black);
             else
-              screenColor[xPos - 2][yPos] = Color::Black;
+              setScreenBuffer(xPos - 2, yPos, Color::Black);
             yPos++;
             break;
           }
-          screenColor[xPos + 2][yPos] = Color::Black;
-          screenColor[xPos - 2][yPos] = Color::Black;
+          setScreenBuffer(xPos + 2, yPos, Color::Black);
+          setScreenBuffer(xPos - 2, yPos, Color::Black);
           yPos++;
           break;
         case 1:
           if (j == 0)
           {
             if (buff_direct == 0)
-              screenColor[xPos][yPos + 2] = Color::Black;
+              setScreenBuffer(xPos, yPos + 2, Color::Black);
             else
-              screenColor[xPos][yPos - 2] = Color::Black;
+              setScreenBuffer(xPos, yPos - 2, Color::Black);
             xPos++;
             break;
           }
-          screenColor[xPos][yPos + 2] = Color::Black;
-          screenColor[xPos][yPos - 2] = Color::Black;
+          setScreenBuffer(xPos, yPos + 2, Color::Black);
+          setScreenBuffer(xPos, yPos - 2, Color::Black);
           xPos++;
           break;
         case 2:
           if (j == 0)
           {
             if (buff_direct == 0)
-              screenColor[xPos][yPos + 2] = Color::Black;
+              setScreenBuffer(xPos, yPos + 2, Color::Black);
             else
-              screenColor[xPos][yPos - 2] = Color::Black;
+              setScreenBuffer(xPos, yPos - 2, Color::Black);
             xPos--;
             break;
           }
-          screenColor[xPos][yPos + 2] = Color::Black;
-          screenColor[xPos][yPos - 2] = Color::Black;
+          setScreenBuffer(xPos, yPos + 2, Color::Black);
+          setScreenBuffer(xPos, yPos - 2, Color::Black);
           xPos--;
           break;
         default:
           if (j == 0)
           {
             if (buff_direct == 1)
-              screenColor[xPos + 2][yPos] = Color::Black;
+              setScreenBuffer(xPos + 2, yPos, Color::Black);
             else
-              screenColor[xPos - 2][yPos] = Color::Black;
+              setScreenBuffer(xPos - 2, yPos, Color::Black);
             yPos--;
             break;
           }
-          screenColor[xPos + 2][yPos] = Color::Black;
-          screenColor[xPos - 2][yPos] = Color::Black;
+          setScreenBuffer(xPos + 2, yPos, Color::Black);
+          setScreenBuffer(xPos - 2, yPos, Color::Black);
           yPos--;
           break;
         }
@@ -225,34 +199,26 @@ namespace CTRPluginFramework
       buff_direct = direct;
       direct = temp_direct;
     }
-    if (Controller::IsKeyPressed(Key::Start))
-    {
-      isReset = true;
-      for (int i = 0; i < 400; i++)
-      {
-        for (int j = 0; j < 240; j++)
-          screenColor[i][j] = Color::Black;
-      }
-    }
   }
 
-  void addSearch(MenuFolder *folder,MenuFolder *SearchFolder,std::string input)
+  void addSearch(MenuFolder *folder, MenuFolder *SearchFolder, std::string input)
   {
-    if(folder->Name() == "Search")
+    if (folder->Name() == "Search")
       return;
     std::vector<CTRPluginFramework::MenuEntry *> entries = folder->GetEntryList();
     std::vector<MenuFolder *> folders = folder->GetFolderList();
-    for(auto folder1 : folders){
-      addSearch(folder1,SearchFolder,input);
+    for (auto folder1 : folders)
+    {
+      addSearch(folder1, SearchFolder, input);
     }
-    for(auto entry:entries){
+    for (auto entry : entries)
+    {
       if ((Convert::toLower(entry->Name()).find(input) != std::string::npos) || (Convert::hiraganaToKatakana(entry->Note()).find(input) != std::string::npos) || (Convert::katakanaToHiragana(entry->Note()).find(input) != std::string::npos))
       {
         *SearchFolder += new MenuEntry(entry->Name(), entry->GetGameFunc(), entry->GetMenuFunc(), entry->Note());
       }
     }
   }
-
 
   void Search(MenuEntry *entry)
   {
@@ -262,7 +228,7 @@ namespace CTRPluginFramework
     if (input.empty())
       return;
 
-    input = Convert::toLower(input);
+    input = Convert::hiraganaToKatakana(Convert::toLower(input));
     std::vector<MenuFolder *> folders = menu->GetFolderList();
     MenuFolder *SearchFolder;
     for (auto folder : folders)
@@ -370,7 +336,7 @@ namespace CTRPluginFramework
           }
           if (ModelAddress)
           {
-            yokaiName = ProcessPlus::ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04)));
+            yokaiName = ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04)));
             break;
           }
         }
@@ -516,9 +482,9 @@ namespace CTRPluginFramework
             {
               if (*(u32 *)(ModelAddress + 0x04) < 0x8000000)
                 continue;
-              if (ProcessPlus::ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04))).find(out) != std::string::npos)
+              if (ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04))).find(out) != std::string::npos)
               {
-                yokaiNames.push_back(ProcessPlus::ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04))));
+                yokaiNames.push_back(ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04))));
                 yokaiIDs.push_back((*(u32 *)(0x08576864 + (i * 0x84))));
               }
             }
@@ -853,28 +819,28 @@ namespace CTRPluginFramework
         calculateForSurface(cubeX, cubeWidth, cubeY, '+');
       }
     }
-    screenColor = std::vector<std::vector<Color>>(400, std::vector<Color>(240, Color::Black));
+    fillScreenBuffer(Color::Black);
     for (int k = 0; k < width * height; k++)
     {
       switch (buffer[k])
       {
       case 64:
-        screenColor[k % width][k / width] = Color::Red;
+        setScreenBuffer(k % width, k / width, Color::Red);
         break;
       case 36:
-        screenColor[k % width][k / width] = Color::Blue;
+        setScreenBuffer(k % width, k / width, Color::Blue);
         break;
       case 126:
-        screenColor[k % width][k / width] = Color::Orange;
+        setScreenBuffer(k % width, k / width, Color::Orange);
         break;
       case 35:
-        screenColor[k % width][k / width] = Color::Green;
+        setScreenBuffer(k % width, k / width, Color::Green);
         break;
       case 59:
-        screenColor[k % width][k / width] = Color::White;
+        setScreenBuffer(k % width, k / width, Color::White);
         break;
       case 43:
-        screenColor[k % width][k / width] = Color::Yellow;
+        setScreenBuffer(k % width, k / width, Color::Yellow);
         break;
       }
     }
@@ -884,12 +850,12 @@ namespace CTRPluginFramework
   {
     if (entry->WasJustActivated())
     {
-      flagShowScreenBuffer = true;
+      setFlagShowScreenBuffer(true);
       OSD::Run(ShowScreenBuffer);
     }
     if (!entry->IsActivated())
     {
-      flagShowScreenBuffer = false;
+      setFlagShowScreenBuffer(false);
       OSD::Stop(ShowScreenBuffer);
     }
     rotateCube();
@@ -973,16 +939,16 @@ namespace CTRPluginFramework
 
   void PlayMusic(MenuEntry *entry)
   {
-    // StringVector files_name;
-    // Directory("MUSIC", true).ListFiles(files_name, ".bcwav");
-    // if (!files_name.size())
-    // {
-    //   MessageBox("no files found")();
-    //   return;
-    // }
-    // s8 i = Keyboard("select file:", files_name).Open();
-    // if (i != -1)
-    //   Sound("MUSIC/" + files_name[i]).Play();
+    StringVector files_name;
+    Directory("MUSIC", true).ListFiles(files_name, ".bcwav");
+    if (!files_name.size())
+    {
+      MessageBox("no files found")();
+      return;
+    }
+    s8 i = Keyboard("select file:", files_name).Open();
+    if (i != -1)
+      Sound("MUSIC/" + files_name[i]).Play();
   }
 
   void Indicator(MenuEntry *entry)
