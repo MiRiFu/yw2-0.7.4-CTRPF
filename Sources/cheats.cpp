@@ -89,20 +89,20 @@ namespace CTRPluginFramework
       switch (direct)
       {
       case 0:
-        xPos = Utils::Random(0, 398) + 1;
+        xPos = Utils::Random(1, 398);
         yPos = 1;
         break;
       case 1:
         xPos = 1;
-        yPos = Utils::Random(0, 338) + 1;
+        yPos = Utils::Random(1, 237);
         break;
       case 2:
-        xPos = 399;
-        yPos = Utils::Random(0, 238) + 1;
+        xPos = 398;
+        yPos = Utils::Random(1, 237);
         break;
       default:
-        xPos = Utils::Random(0, 398) + 1;
-        yPos = 239;
+        xPos = Utils::Random(1, 398);
+        yPos = 237;
         break;
       }
       isReset = false;
@@ -114,7 +114,7 @@ namespace CTRPluginFramework
     }
     if (len > 0)
     {
-      if (xPos == 0 || xPos == 400 || yPos == 0 || yPos == 240)
+      if (xPos == 0 || xPos == 400 || yPos == 0 || yPos == 239)
       {
         isReset = true;
       }
@@ -188,7 +188,7 @@ namespace CTRPluginFramework
     }
     else
     {
-      len = Utils::Random(0, 30);
+      len = Utils::Random(3, 30);
       j = 0;
       while (1)
       {
@@ -198,6 +198,10 @@ namespace CTRPluginFramework
       }
       buff_direct = direct;
       direct = temp_direct;
+    }
+    if(Controller::IsKeyPressed(Key::Start)){
+      fillScreenBuffer(Color::Black);
+      isReset = true;
     }
   }
 
