@@ -89,7 +89,7 @@ namespace CTRPluginFramework
       switch (direct)
       {
       case 0:
-        xPos = Utils::Random(1, 398);
+        xPos = Utils::Random(1, 397);
         yPos = 1;
         break;
       case 1:
@@ -101,7 +101,7 @@ namespace CTRPluginFramework
         yPos = Utils::Random(1, 237);
         break;
       default:
-        xPos = Utils::Random(1, 398);
+        xPos = Utils::Random(1, 397);
         yPos = 237;
         break;
       }
