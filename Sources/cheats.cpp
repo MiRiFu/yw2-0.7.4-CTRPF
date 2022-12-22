@@ -69,7 +69,7 @@ namespace CTRPluginFramework
 
   u32 xPos = 150, yPos = 120;
   u8 direct = 3, temp_direct, buff_direct, i = 0, len, j;
-  Color colorList[6] = {Color::Red, Color::Blue, Color::Cyan, Color::Green, Color::Yellow, Color::Orange};
+  Color colorList[7] = {Color::Red, Color::Blue, Color::Cyan, Color::Green, Color::Yellow, Color::Orange,Color::White};
   bool isReset = false;
   void Pipes(MenuEntry *entry)
   {
@@ -89,32 +89,32 @@ namespace CTRPluginFramework
       switch (direct)
       {
       case 0:
-        xPos = Utils::Random(1, 397);
-        yPos = 1;
+        xPos = Utils::Random(2, 397);
+        yPos = 2;
         break;
       case 1:
-        xPos = 1;
-        yPos = Utils::Random(1, 237);
+        xPos = 2;
+        yPos = Utils::Random(2, 237);
         break;
       case 2:
         xPos = 398;
-        yPos = Utils::Random(1, 237);
+        yPos = Utils::Random(2, 237);
         break;
       default:
-        xPos = Utils::Random(1, 397);
-        yPos = 237;
+        xPos = Utils::Random(2, 397);
+        yPos = 238;
         break;
       }
       isReset = false;
       j = 0;
-      if (i < 5)
+      if (i < 6)
         i++;
       else
         i = 0;
     }
     if (len > 0)
     {
-      if (xPos == 0 || xPos == 400 || yPos == 0 || yPos == 239)
+      if (xPos == 1 || xPos == 399 || yPos == 1 || yPos == 239)
       {
         isReset = true;
       }
