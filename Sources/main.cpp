@@ -206,7 +206,7 @@ namespace CTRPluginFramework
               flag = false;
               break;
             }
-            else if ((buff > 0x80) || (buff < 0xA0))
+            else if (0x1000 < buff)
               kanji += str_buff.substr(0, 3);
             else
               kanji += str_buff.substr(0, 1);
@@ -345,18 +345,10 @@ namespace CTRPluginFramework
     *searchFolder += new MenuEntry("Search", nullptr, Search);
     menu += searchFolder;
 
-    MenuFolder *folder1 = new MenuFolder("other");
     menu += new MenuEntry("Cheat1", Cheat1);
     menu += new MenuEntry("Test1", nullptr, Test1);
-    *folder1 += new MenuEntry("pipes", Pipes, "パイプス");
     menu += new MenuEntry("YokaiEditor", YokaiEditor, "ヨウカイエディター\ndesigned with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)");
-    *folder1 += new MenuEntry("Cube", Cube,"キューブ");
-    *folder1 += new MenuEntry("Bad Apple!!", BadApple,"バッドアップル!!");
-    *folder1 += new MenuEntry("JPNotify", JPNotify, "ジェーピーノティファイ\nstartで表示\n(Y押しながら押すんじゃないぞ！)");
-    *folder1 += new MenuEntry("ChangeBackGround", nullptr, ChangeBackGround, "チェンジバックグラウンド\nBMPフォルダに画像を入れてください");
-    *folder1 += new MenuEntry("PlayMusic", nullptr, PlayMusic,"プレイミュージック");
     menu += new MenuEntry("Indicator", Indicator,"インディケーター");
-    menu += folder1;
   }
 
   int main(void)

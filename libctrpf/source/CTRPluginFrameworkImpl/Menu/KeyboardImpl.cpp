@@ -45,7 +45,7 @@ namespace CTRPluginFramework
         _useNintendo = false;
         _errorMessage = false;
         _askForExit = false;
-        _isHex = false;
+        _isHex = true;
         _offset = 0.f;
         _max = 0;
         _layout = HEXADECIMAL;
@@ -93,7 +93,7 @@ namespace CTRPluginFramework
         _useNintendo = false;
         _errorMessage = false;
         _askForExit = false;
-        _isHex = false;
+        _isHex = true;
         _offset = 0.f;
         _max = 0;
         _layout = HEXADECIMAL;

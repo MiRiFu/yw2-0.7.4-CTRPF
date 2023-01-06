@@ -11,16 +11,9 @@ namespace CTRPluginFramework
 
     void Cheat1(MenuEntry *entry);
     void Test1(MenuEntry *entry);
-    void Pipes(MenuEntry *entry);
     void Search(MenuEntry *entry);
     void YokaiEditor(MenuEntry *entry);
-    void Cube(MenuEntry *entry);
-    void BadApple(MenuEntry *entry);
-    void JPNotify(MenuEntry *entry);
-    void ChangeBackGround(MenuEntry *entry);
-    void PlayMusic(MenuEntry *entry);
     void Indicator(MenuEntry *entry);
 
-    std::vector<u64> getFrame(int &frame);
 }
 #endif

@@ -1,6 +1,8 @@
 {
   "C_Cpp.errorSquiggles": "EnabledIfIncludesResolve",
-  "C_Cpp.codeAnalysis.clangTidy.checks.disabled": ["clang-diagnostic-error"],
+  "C_Cpp.codeAnalysis.clangTidy.checks.disabled": [
+    "clang-diagnostic-error"
+  ],
   "files.associations": {
     "*.3gx": "cpp",
     "array": "cpp",

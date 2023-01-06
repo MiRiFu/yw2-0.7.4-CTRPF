@@ -40,6 +40,8 @@ namespace CTRPluginFramework
   bool ShowScreenBuffer(const Screen &screen);
 
   std::string ReadSJIS(u32 Address);
+
+  Result colorPicker(Color &out);
 }
 
 #endif
