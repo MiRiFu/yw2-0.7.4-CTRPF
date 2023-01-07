@@ -49,7 +49,6 @@ namespace CTRPluginFramework
     screen.Draw(Utils::Format("%x", offset + 0x000B2CA), 0, 40);
   }
 
-  
   void addSearch(MenuFolder *folder, MenuFolder *SearchFolder, std::string input)
   {
     if (folder->Name() == "Search")
@@ -73,8 +72,7 @@ namespace CTRPluginFramework
   {
     std::string input;
     PluginMenu *menu = PluginMenu::GetRunningInstance();
-    japKey(input, "エントリー名を入力してください");
-    if (input.empty())
+    if (JPKeyboard("エントリー名を入力してください").Open(input) < 0)
       return;
 
     input = Convert::hiraganaToKatakana(Convert::toLower(input));
@@ -261,7 +259,6 @@ namespace CTRPluginFramework
 
         int answer = select.Open();
         std::string out;
-        std::vector<u8> sjis;
         switch (answer)
         {
         case 0:
@@ -286,21 +283,29 @@ namespace CTRPluginFramework
           }
           break;
         case 1:
-          japKey(out, "妖怪の名前を入れてください", &sjis);
-          for (int j = 0; j < 24; j++)
+        {
+          if (0 <= JPKeyboard("妖怪の名前を入れてください").Open(out))
           {
-            Process::Write8(0x870DBBC + offset + j, 0x00);
+            std::vector<u8> sjis;
+            std::vector<u16> buff = Convert::strToSjis(out);
+            for (int i = 0; i < buff.size(); i++)
+            {
+              sjis.push_back(buff[i] / 0x100);
+              sjis.push_back(buff[i] & 0xFF);
+            }
+            for (int j = 0; j < 24; j++)
+            {
+              Process::Write8(0x870DBBC + offset + j, 0x00);
+            }
+            for (int j = 0; j < (sjis.size() > 23 ? 23 : sjis.size()); j++)
+            {
+              Process::Write8(0x870DBBC + offset + j, sjis[j]);
+            }
           }
-          for (int j = 0; j < (sjis.size() > 23 ? 23 : sjis.size()); j++)
-          {
-            Process::Write8(0x870DBBC + offset + j, sjis[j]);
-          }
-          break;
-        default:
           break;
         }
+        }
         ProcessImpl::Play(true);
-        isOpened = false;
       }
       else if (TouchRect(130, 68, 150, 19))
       {
@@ -311,35 +316,37 @@ namespace CTRPluginFramework
         case 0:
         {
           std::string out;
-          japKey(out, "妖怪の名前を入れてください");
-          StringVector yokaiNames;
-          std::vector<u32> yokaiIDs;
-          for (int i = 0; i < 706; i++)
+          if (0 <= JPKeyboard("妖怪の名前を入れてください").Open(out))
           {
-            u32 ModelAddress = 0;
-            for (int y = 0; y < 602; y++)
+            StringVector yokaiNames;
+            std::vector<u32> yokaiIDs;
+            for (int i = 0; i < 706; i++)
             {
-              if (*(u32 *)(0x08576868 + (i * 0x84)) == *(u32 *)(0x08570774 + (y * 0x28)))
+              u32 ModelAddress = 0;
+              for (int y = 0; y < 602; y++)
               {
-                ModelAddress = 0x08570774 + (y * 0x28);
-                break;
+                if (*(u32 *)(0x08576868 + (i * 0x84)) == *(u32 *)(0x08570774 + (y * 0x28)))
+                {
+                  ModelAddress = 0x08570774 + (y * 0x28);
+                  break;
+                }
+              }
+              if (ModelAddress)
+              {
+                if (*(u32 *)(ModelAddress + 0x04) < 0x8000000)
+                  continue;
+                if (ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04))).find(out) != std::string::npos)
+                {
+                  yokaiNames.push_back(ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04))));
+                  yokaiIDs.push_back((*(u32 *)(0x08576864 + (i * 0x84))));
+                }
               }
             }
-            if (ModelAddress)
+            ans = Keyboard("select", yokaiNames).Open();
+            if (0 <= ans)
             {
-              if (*(u32 *)(ModelAddress + 0x04) < 0x8000000)
-                continue;
-              if (ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04))).find(out) != std::string::npos)
-              {
-                yokaiNames.push_back(ReadSJIS(*(u32 *)(*(u32 *)(ModelAddress + 0x04))));
-                yokaiIDs.push_back((*(u32 *)(0x08576864 + (i * 0x84))));
-              }
+              Process::Write32(0x870DBB8 + offset, yokaiIDs[ans]);
             }
-          }
-          ans = Keyboard("select", yokaiNames).Open();
-          if (0 <= ans)
-          {
-            Process::Write32(0x870DBB8 + offset, yokaiIDs[ans]);
           }
           break;
         }

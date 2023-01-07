@@ -1,5 +1,4 @@
-#ifndef KANICODES_HPP
-#define KANICODES_HPP
+#pragma once
 
 #include <CTRPluginFramework.hpp>
 #include <math.h>
@@ -21,27 +20,69 @@ namespace CTRPluginFramework
   public:
     static u16 sjisToUtf16(u16 sjis);
     static u16 utf16ToSjis(u16 utf16);
-    static u16 strToSjis(std::string moji);
+    static std::vector<u16> strToSjis(std::string str);
     static int getMultiByte(std::string str);
-    static void SetHiraganaKanji(std::string hiragana, std::string kanji);
     static std::string toLower(std::string str);
     static std::string hiraganaToKanji(std::string hiragana);
     static std::string hiraganaToKatakana(std::string hiragana);
     static std::string katakanaToHiragana(std::string katakana);
   };
 
-  void japKey(std::string &out, std::string text, std::vector<u8> *sjis = 0);
-  bool TouchCircle(u32 x, u32 y, u8 size);
-  bool TouchRect(u32 x, u32 y, u32 w, u32 h);
-  
-  void setFlagShowScreenBuffer(bool flag);
-  void setScreenBuffer(u16 x, u16 y, Color color);
-  void fillScreenBuffer(Color color);
-  bool ShowScreenBuffer(const Screen &screen);
+  class JPKeyboard
+  {
+  public:
+    JPKeyboard(std::string text = "");
 
-  std::string ReadSJIS(u32 Address);
+    static bool LoadKanjiList(void);
 
-  Result colorPicker(Color &out);
+    void SetMaxLength(u32 max);
+    void CanSwich(bool canSwich);
+    void CanAbort(bool canAbort);
+    void CanConvert(bool canConvert);
+    Result Open(std::string &out);
+    Result Open(std::string &out,std::string defaultText);
+
+  private:
+    std::string _text;
+    u32 _maxLength;
+    bool _canSwich;
+    bool _canAbort;
+    bool _canConvert;
+
+    u16 U16_ChrArray[50 + 1];
+    bool KatakanaMode;
+    bool KeyboardOpened;
+    u8 selectedIndex;
+    std::vector<u16> InputChrs;
+    std::string InputStr;
+    const std::string Hiragana =
+        "わらやまはなたさかあ"
+        "をりゆみひにちしきい"
+        "んるよむふぬつすくう"
+        "、れ！めへねてせけえ"
+        "。ろ？もほのとそこお";
+    const std::string Katakana =
+        "ワラヤマハナタサカア"
+        "ヲリユミヒニチシキイ"
+        "ンルヨムフヌツスクウ"
+        "、レ！メヘネテセケエ"
+        "。ロ？モホノトソコオ";
+
+    void MakeU16Array(void);
+    void Komoji(u16 &moji);
+    void Dakuten(bool handakuten, u16 &moji);
+    Result DrawKeyboard(const Screen &scr, std::string &out);
+  };
+
+    bool TouchCircle(u32 x, u32 y, u8 size);
+    bool TouchRect(u32 x, u32 y, u32 w, u32 h);
+
+    void setFlagShowScreenBuffer(bool flag);
+    void setScreenBuffer(u16 x, u16 y, Color color);
+    void fillScreenBuffer(Color color);
+    bool ShowScreenBuffer(const Screen &screen);
+
+    std::string ReadSJIS(u32 Address);
+
+    Result colorPicker(Color &out);
 }
-
-#endif
