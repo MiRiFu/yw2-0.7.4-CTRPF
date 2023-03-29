@@ -1,22 +1,18 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/Includes",
-                "/opt/devkitpro/libctru/include",
-                "${workspaceFolder}/libctrpf/**",
-                "${workspaceFolder}/libctrpf/include/CTRPluginFramework",
-                "/opt/devkitpro/devkitARM/arm-none-eabi/include",
-                "/opt/devkitpro/devkitARM/arm-none-eabi/include/**"
+                "${default}",
+                "${workspaceFolder}/Includes"
             ],
-            "defines": [],
-            "compilerPath": "/usr/bin/clang",
-            "cStandard": "c17",
-            "cppStandard": "c++14",
-            "intelliSenseMode": "linux-clang-x64",
-            "configurationProvider": "ms-vscode.makefile-tools"
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.22000.0",
+            "cStandard": "c17"
         }
     ],
     "version": 4

@@ -7,7 +7,7 @@ endif
 TOPDIR 		?= 	$(CURDIR)
 include $(DEVKITARM)/3ds_rules
 
-CTRPFLIB	?=	../libctrpf
+CTRPFLIB	?=	$(DEVKITPRO)/libctrpf
 
 TARGET		:= 	$(notdir $(CURDIR))
 PLGINFO 	:= 	CTRPluginFramework.plgInfo
@@ -16,22 +16,29 @@ BUILD		:= 	Build
 INCLUDES	:= 	Includes
 SOURCES 	:= 	Sources
 
+COMMIT		:= 	$(shell git rev-parse --short HEAD)
+
+ifeq ($(strip $(COMMIT)),)
+	COMMIT	:=  0
+endif
+
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 ARCH		:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS		:=	$(ARCH) -Os -mword-relocations \
-				-fomit-frame-pointer -ffunction-sections -fno-strict-aliasing `curl-config --cflags`
+				-fomit-frame-pointer -ffunction-sections -fno-strict-aliasing \
+				-Wall -Wextra -Wno-unused -DCOMMIT_HASH="0x$(COMMIT)"
 
 CFLAGS		+=	$(INCLUDE) -D__3DS__
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
+CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++20 -Wno-psabi
 
 ASFLAGS		:=	$(ARCH)
 LDFLAGS		:= -T $(TOPDIR)/3gx.ld $(ARCH) -Os -Wl,--gc-sections,--strip-discarded,--strip-debug
 
-LIBS		:= -lctrpf -lctru `curl-config --libs`
+LIBS		:= -lctrpf -lctru
 LIBDIRS		:= 	$(CTRPFLIB) $(CTRULIB) $(PORTLIBS)
 
 #---------------------------------------------------------------------------------
@@ -60,7 +67,7 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I $(CURDIR)/$(dir) ) \
 
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L $(dir)/lib)
 
-.PHONY: $(BUILD) clean all
+.PHONY: $(BUILD) clean all re send
 
 #---------------------------------------------------------------------------------
 all: $(BUILD)
@@ -75,6 +82,13 @@ clean:
 	@rm -fr $(BUILD) $(OUTPUT).3gx $(OUTPUT).elf
 
 re: clean all
+
+send:
+ifeq ($(shell uname),Linux)
+	@python3 plugin-sender/send.py
+else
+	@python plugin-sender/send.py
+endif
 
 #---------------------------------------------------------------------------------
 

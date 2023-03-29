@@ -1,9 +1,8 @@
 #include <3ds.h>
-#include "csvc.h"
 #include <CTRPluginFramework.hpp>
 #include "cheats.hpp"
+#include "csvc.h"
 #include "KaniCodes.hpp"
-#include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
 #include <ctime>
 
 namespace CTRPluginFramework
@@ -165,56 +164,6 @@ namespace CTRPluginFramework
   }
 
 
-  bool checkPass(void)
-  {
-    std::vector<u16> answer = {0x6A, 0x3EC, 0x2175, 0x29FB, 0x2CF, 0x5C, 0xBB};
-    std::vector<u16> diff = {0x84, 0x25, 0x266, 0x2999, 0x2114, 0x37A, 0x7};
-    u8 answer_length = answer.size();
-    u64 hash;
-    CFGU_GenHashConsoleUnique(0, &hash);
-    hash = (hash % 0x1000) * 2 + (hash >> 0x36);
-
-    File::Create("pass.bin");
-    File file("pass.bin");
-    for (int j = 0; j < answer_length; j++)
-    {
-      u16 buff;
-      file.Read((void *)&buff, sizeof(u16));
-      if (buff != (answer[j] + diff[j] + hash))
-      {
-        u16 utf16[answer_length];
-        KeyboardImpl key("input password");
-        key.SetLayout(Layout::QWERTY);
-        key.Run();
-        Process::WriteString((u32)&utf16, key.GetInput().substr(0, answer_length), StringFormat::Utf16);
-        for (int i = 0; i < answer_length; i++)
-          utf16[i] += diff[answer_length - i - 1];
-        Sleep(Seconds(1));
-
-        for (int i = 0; i < answer_length; i++)
-        {
-          if (utf16[i] != answer[i])
-          {
-            MessageBox("invalid")();
-            file.Close();
-            return false;
-          }
-        }
-        file.Rewind();
-        for (int i = 0; i < answer_length; i++)
-        {
-          buff = answer[i] + diff[i] + hash;
-          file.Write((void *)&buff, sizeof(u16));
-        }
-        file.Close();
-
-        return true;
-      }
-    }
-    file.Close();
-    return true;
-  }
-
   // This patch the NFC disabling the touchscreen when scanning an amiibo, which prevents ctrpf to be used
   static void ToggleTouchscreenForceOn(void)
   {
@@ -302,10 +251,6 @@ namespace CTRPluginFramework
     Sleep(Seconds(1));
     OSD::Stop(LoadGameTitle);
 
-    if (!checkPass())
-      return (0);
-    OSD::Notify("verified");
-    JPKeyboard::LoadKanjiList();
 
     menu->OnNewFrame = DrawCallBack;
     menu->SynchronizeWithFrame(true);

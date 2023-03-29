@@ -1,11 +1,7 @@
 #include "cheats.hpp"
-#include "osdjp.hpp"
-#include "AliceCodes.hpp"
-#include "csvc.h"
 #include "KaniCodes.hpp"
-#include "memory.h"
-#include "../libctrpf/include/CTRPluginFrameworkImpl/System/ProcessImpl.hpp"
-#include "../libctrpf/include/CTRPluginFrameworkImpl/Menu/KeyboardImpl.hpp"
+#include "JPKeyboard.hpp"
+#include "Convert.hpp"
 
 namespace CTRPluginFramework
 {
@@ -72,7 +68,7 @@ namespace CTRPluginFramework
   {
     std::string input;
     PluginMenu *menu = PluginMenu::GetRunningInstance();
-    if (JPKeyboard("エントリー名を入力してください").Open(input) < 0)
+    if (!JPKeyboard("エントリー名を入力してください").Open(input))
       return;
 
     input = Convert::hiraganaToKatakana(Convert::toLower(input));
@@ -98,10 +94,10 @@ namespace CTRPluginFramework
       addSearch(folder, SearchFolder, input);
   }
 
-  bool isOpened = false;
   void YokaiEditor(MenuEntry *entry)
   {
-    if (((*(u32 *)0x858088) == 0) && (!System::IsCitra()))
+    static bool isOpened = false;
+    if ((*(u32 *)0x858088 == 0) && !System::IsCitra())
     {
       if (Controller::IsKeyPressed(Key::Start))
         OSD::Notify("open with any medal selected");
@@ -238,11 +234,12 @@ namespace CTRPluginFramework
       DrawSysfontPlus(btmScr, "ポーズ", 234, 100, 0, 0, Color::Black, Color::Black, Color::Red, false, false, 8);
 
       isOpened = true;
-      ProcessImpl::Pause(false);
+      Process::Pause();
     }
     if (Controller::IsKeyPressed(Key::Start))
     {
-      ProcessImpl::Play(true);
+      if (Process::IsPaused())
+        Process::Play();
       isOpened = !isOpened;
     }
     auto position = Touch::GetPosition();
@@ -250,7 +247,8 @@ namespace CTRPluginFramework
     {
       if (TouchRect(275, 30, 15, 15))
       {
-        ProcessImpl::Play(true);
+        if (Process::IsPaused())
+          Process::Play();
         isOpened = !isOpened;
       }
       else if (TouchRect(130, 48, 150, 19))
@@ -284,20 +282,20 @@ namespace CTRPluginFramework
           break;
         case 1:
         {
-          if (0 <= JPKeyboard("妖怪の名前を入れてください").Open(out))
+          if (JPKeyboard("妖怪の名前を入れてください").Open(out))
           {
             std::vector<u8> sjis;
             std::vector<u16> buff = Convert::strToSjis(out);
-            for (int i = 0; i < buff.size(); i++)
+            for (size_t i = 0; i < buff.size(); i++)
             {
               sjis.push_back(buff[i] / 0x100);
               sjis.push_back(buff[i] & 0xFF);
             }
-            for (int j = 0; j < 24; j++)
+            for (size_t j = 0; j < 24; j++)
             {
               Process::Write8(0x870DBBC + offset + j, 0x00);
             }
-            for (int j = 0; j < (sjis.size() > 23 ? 23 : sjis.size()); j++)
+            for (size_t j = 0; j < (sjis.size() > 23 ? 23 : sjis.size()); j++)
             {
               Process::Write8(0x870DBBC + offset + j, sjis[j]);
             }
@@ -305,7 +303,7 @@ namespace CTRPluginFramework
           break;
         }
         }
-        ProcessImpl::Play(true);
+        Process::Play();
       }
       else if (TouchRect(130, 68, 150, 19))
       {
@@ -316,14 +314,14 @@ namespace CTRPluginFramework
         case 0:
         {
           std::string out;
-          if (0 <= JPKeyboard("妖怪の名前を入れてください").Open(out))
+          if (JPKeyboard("妖怪の名前を入れてください").Open(out))
           {
             StringVector yokaiNames;
             std::vector<u32> yokaiIDs;
-            for (int i = 0; i < 706; i++)
+            for (size_t i = 0; i < 706; i++)
             {
               u32 ModelAddress = 0;
-              for (int y = 0; y < 602; y++)
+              for (size_t y = 0; y < 602; y++)
               {
                 if (*(u32 *)(0x08576868 + (i * 0x84)) == *(u32 *)(0x08570774 + (y * 0x28)))
                 {
@@ -363,42 +361,42 @@ namespace CTRPluginFramework
         }
         break;
         }
-        ProcessImpl::Play(true);
+        Process::Play();
       }
       else if (TouchRect(120, 90, 50, 20))
       {
         Sleep(Milliseconds(200));
         if (0 <= Keyboard("レベル:").Open(level))
           Process::Write8(0x870DC03 + offset, level);
-        ProcessImpl::Play(true);
+        Process::Play();
       }
       else if (TouchRect(120, 127, 50, 15))
       {
         Sleep(Milliseconds(200));
         if (0 <= Keyboard("HP:").Open(hp))
           Process::Write16(0x870DBEC + offset, hp);
-        ProcessImpl::Play(true);
+        Process::Play();
       }
       else if (TouchRect(120, 144, 50, 15))
       {
         Sleep(Milliseconds(200));
         if (0 <= Keyboard("ちから:").Open(power))
           Process::Write16(0x870DC16 + offset, power);
-        ProcessImpl::Play(true);
+        Process::Play();
       }
       else if (TouchRect(120, 161, 50, 15))
       {
         Sleep(Milliseconds(200));
         if (0 <= Keyboard("ようりょく:").Open(magic))
           Process::Write16(0x870DC18 + offset, magic);
-        ProcessImpl::Play(true);
+        Process::Play();
       }
       else if (TouchRect(120, 178, 50, 15))
       {
         Sleep(Milliseconds(200));
         if (0 <= Keyboard("まもり:").Open(protect))
           Process::Write16(0x870DC1A + offset, protect);
-        ProcessImpl::Play(true);
+        Process::Play();
       }
       else if (TouchRect(120, 195, 50, 16))
       {
@@ -407,7 +405,7 @@ namespace CTRPluginFramework
         {
           Process::Write16(0x870DC1C + offset, speed);
         }
-        ProcessImpl::Play(true);
+        Process::Play();
       }
       else if (TouchCircle(210, 190, 25))
       {
@@ -417,14 +415,11 @@ namespace CTRPluginFramework
         std::string out;
         if (answer != -1)
         {
-          KeyboardImpl a("");
-          a.SetLayout(Layout::QWERTY);
-          a.Run();
-          out = a.GetInput();
+          Keyboard("").Open(out);
           if (out.empty())
             answer = -1;
         }
-        ProcessImpl::Play(true);
+        Process::Play();
         Directory::Create("YokaiEditor");
         File file;
         switch (answer)
@@ -464,7 +459,7 @@ namespace CTRPluginFramework
         Sleep(Milliseconds(100));
         Keyboard select("select mode:", {"ニックネーム", "ステータス", "妖怪ID", "削除"});
         int answer = select.Open();
-        ProcessImpl::Play(true);
+        Process::Play();
         Directory dir("YokaiEditor");
         File file;
         StringVector files_name;
@@ -475,7 +470,7 @@ namespace CTRPluginFramework
         case 0:
         {
           dir.ListFiles(files_name, "nickname_");
-          for (int i = 0; i < files_name.size(); i++)
+          for (size_t i = 0; i < files_name.size(); i++)
           {
             files_name[i].replace(files_name[i].find("nickname_"), 9, "").replace(files_name[i].find(".bin"), 4, "");
           }
@@ -495,7 +490,7 @@ namespace CTRPluginFramework
         case 1:
         {
           dir.ListFiles(files_name, "status_");
-          for (int i = 0; i < files_name.size(); i++)
+          for (size_t i = 0; i < files_name.size(); i++)
           {
             files_name[i].replace(files_name[i].find("status_"), 7, "").replace(files_name[i].find(".bin"), 4, "");
           }
@@ -532,7 +527,7 @@ namespace CTRPluginFramework
         case 2:
         {
           dir.ListFiles(files_name, "yokaiID_");
-          for (int i = 0; i < files_name.size(); i++)
+          for (size_t i = 0; i < files_name.size(); i++)
           {
             files_name[i].replace(files_name[i].find("yokaiID_"), 8, "").replace(files_name[i].find(".bin"), 4, "");
           }
@@ -582,7 +577,7 @@ namespace CTRPluginFramework
         {
           Sleep(Milliseconds(200));
           s8 j = Keyboard(characters2).Open();
-          ProcessImpl::Play(true);
+          Process::Play();
           if (j != -1)
             Process::Write8(0x870DC08 + offset, i * 0x10 + j);
         }
@@ -591,7 +586,7 @@ namespace CTRPluginFramework
       {
         Sleep(Milliseconds(100));
         s8 i = Keyboard(poses).Open();
-        ProcessImpl::Play(true);
+        Process::Play();
         if (i != -1)
           Process::Write8(0x870DC04 + offset, i);
       }
