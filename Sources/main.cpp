@@ -233,6 +233,7 @@ namespace CTRPluginFramework
 
   void InitMenu(PluginMenu &menu)
   {
+    // menu += new MenuEntry("test", Test);
     menu += new MenuEntry("YokaiEditor", YokaiEditor, "ヨウカイエディター\ndesigned with OSD Designer\nrespect for Tekito_256\n\n控えのメダルでSTARTボタンを押してください\n\n第一水準漢字しか対応してません(表示のみ)");
     menu += new MenuEntry("Indicator", Indicator,"インディケーター");
   }

@@ -7,10 +7,11 @@
 
 namespace CTRPluginFramework
 {
-    using StringVector = std::vector<std::string>;
+  using StringVector = std::vector<std::string>;
 
-    void YokaiEditor(MenuEntry *entry);
-    void Indicator(MenuEntry *entry);
+  void Test(MenuEntry *entry);
+  void YokaiEditor(MenuEntry *entry);
+  void Indicator(MenuEntry *entry);
 
 }
 #endif

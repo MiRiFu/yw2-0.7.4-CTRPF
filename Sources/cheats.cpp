@@ -5,10 +5,14 @@
 
 namespace CTRPluginFramework
 {
+  void Test(MenuEntry *entry)
+  {
+  }
+
   void YokaiEditor(MenuEntry *entry)
   {
     static bool isOpened = false;
-    if ((*(u32 *)0x858088 == 0) && !System::IsCitra())
+    if (!System::IsCitra() && *(u32 *)(*(u32 *)0x8594AC + 8) != 0x804)
     {
       if (Controller::IsKeyPressed(Key::Start))
         OSD::Notify("open with any medal selected");
