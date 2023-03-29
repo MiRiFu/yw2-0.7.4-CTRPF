@@ -239,7 +239,7 @@ namespace CTRPluginFramework
     if (Controller::IsKeyPressed(Key::Start))
     {
       if (Process::IsPaused())
-        Process::Play();
+        ForcePlay();
       isOpened = !isOpened;
     }
     auto position = Touch::GetPosition();
@@ -248,7 +248,7 @@ namespace CTRPluginFramework
       if (TouchRect(275, 30, 15, 15))
       {
         if (Process::IsPaused())
-          Process::Play();
+          ForcePlay();
         isOpened = !isOpened;
       }
       else if (TouchRect(130, 48, 150, 19))
@@ -303,7 +303,7 @@ namespace CTRPluginFramework
           break;
         }
         }
-        Process::Play();
+        ForcePlay();
       }
       else if (TouchRect(130, 68, 150, 19))
       {
@@ -361,42 +361,42 @@ namespace CTRPluginFramework
         }
         break;
         }
-        Process::Play();
+        ForcePlay();
       }
       else if (TouchRect(120, 90, 50, 20))
       {
         Sleep(Milliseconds(200));
         if (0 <= Keyboard("レベル:").Open(level))
           Process::Write8(0x870DC03 + offset, level);
-        Process::Play();
+        ForcePlay();
       }
       else if (TouchRect(120, 127, 50, 15))
       {
         Sleep(Milliseconds(200));
         if (0 <= Keyboard("HP:").Open(hp))
           Process::Write16(0x870DBEC + offset, hp);
-        Process::Play();
+        ForcePlay();
       }
       else if (TouchRect(120, 144, 50, 15))
       {
         Sleep(Milliseconds(200));
         if (0 <= Keyboard("ちから:").Open(power))
           Process::Write16(0x870DC16 + offset, power);
-        Process::Play();
+        ForcePlay();
       }
       else if (TouchRect(120, 161, 50, 15))
       {
         Sleep(Milliseconds(200));
         if (0 <= Keyboard("ようりょく:").Open(magic))
           Process::Write16(0x870DC18 + offset, magic);
-        Process::Play();
+        ForcePlay();
       }
       else if (TouchRect(120, 178, 50, 15))
       {
         Sleep(Milliseconds(200));
         if (0 <= Keyboard("まもり:").Open(protect))
           Process::Write16(0x870DC1A + offset, protect);
-        Process::Play();
+        ForcePlay();
       }
       else if (TouchRect(120, 195, 50, 16))
       {
@@ -405,7 +405,7 @@ namespace CTRPluginFramework
         {
           Process::Write16(0x870DC1C + offset, speed);
         }
-        Process::Play();
+        ForcePlay();
       }
       else if (TouchCircle(210, 190, 25))
       {
@@ -419,7 +419,7 @@ namespace CTRPluginFramework
           if (out.empty())
             answer = -1;
         }
-        Process::Play();
+        ForcePlay();
         Directory::Create("YokaiEditor");
         File file;
         switch (answer)
@@ -459,7 +459,7 @@ namespace CTRPluginFramework
         Sleep(Milliseconds(100));
         Keyboard select("select mode:", {"ニックネーム", "ステータス", "妖怪ID", "削除"});
         int answer = select.Open();
-        Process::Play();
+        ForcePlay();
         Directory dir("YokaiEditor");
         File file;
         StringVector files_name;
@@ -577,7 +577,7 @@ namespace CTRPluginFramework
         {
           Sleep(Milliseconds(200));
           s8 j = Keyboard(characters2).Open();
-          Process::Play();
+          ForcePlay();
           if (j != -1)
             Process::Write8(0x870DC08 + offset, i * 0x10 + j);
         }
@@ -586,7 +586,7 @@ namespace CTRPluginFramework
       {
         Sleep(Milliseconds(100));
         s8 i = Keyboard(poses).Open();
-        Process::Play();
+        ForcePlay();
         if (i != -1)
           Process::Write8(0x870DC04 + offset, i);
       }
