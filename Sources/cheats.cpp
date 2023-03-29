@@ -109,7 +109,7 @@ namespace CTRPluginFramework
     std::string nickname_str, yokaiName;
     StringVector characters = {"超まじめで", "まじめで", "すなおで", "気ままで", "ずぼらで", "超ずぼらで", "ビビリで", "", "", "", "", "", "", "", "", ""};
     StringVector characters2 = {"", "短気", "れいせい", "しんちょう", "やさしい", "いやらしい", "協力的", "荒くれ", "ずのう的", "動じない", "情け深い", "非道", "けんしん的", "", "", ""};
-    StringVector poses = {"きめポーズ1", "きめポーズ2", "きめポーズ3", "きめポーズ4", "おまかせ", "", "", "", "", "", "", "", "", "", ""};
+    StringVector poses = {"きめポーズ1", "きめポーズ2", "きめポーズ3", "きめポーズ4", "おまかせ", "", "", "", "", "", "", "", "", "", "", ""};
 
     Process::Read8((*(u32 *)0x858088) + 0x361, leaderIndex);
     offset = leaderIndex * 0xC4;
